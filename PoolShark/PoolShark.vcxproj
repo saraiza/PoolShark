@@ -55,20 +55,60 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <CustomBuildAfterTargets>Link</CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <CustomBuildAfterTargets>Link</CustomBuildAfterTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>%OpenCV_DIR%\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>%OpenCV_DIR%\x64\vc16\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_core346d.lib;opencv_highgui346d.lib;opencv_imgcodecs346d.lib;opencv_imgproc346d.lib;opencv_photo346d.lib;opencv_shape346d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>copy %OpenCV_DIR%\x64\vc16\bin\*d.dll $(OutDir)
+time /t &gt; $(OutDir)opencvbins.trg</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>OpenCV binaries...</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>$(OutDir)opencvbins.trg</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>%OpenCV_DIR%\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>%OpenCV_DIR%\x64\vc16\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_core346.lib;opencv_highgui346.lib;opencv_imgcodecs346.lib;opencv_imgproc346.lib;opencv_photo346.lib;opencv_shape346.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>copy %OpenCV_DIR%\x64\vc16\bin\*.dll $(OutDir)
+time /t &gt; $(OutDir)opencvbins.trg</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>OpenCV binaries...</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>$(OutDir)opencvbins.trg</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
