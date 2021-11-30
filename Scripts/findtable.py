@@ -5,7 +5,7 @@ import cv2 as cv
 def ShowImg(title, img):
     dy = img.shape[0]
     dx = img.shape[1]
-    maxshow = 800
+    maxshow = 700
     if dy > dx:
         scalefactor = maxshow / img.shape[0] #y
     else:
