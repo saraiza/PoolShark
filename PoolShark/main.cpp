@@ -8,7 +8,7 @@
 #include <opencv2/highgui.hpp>
 #include <QImage>
 
-#include <framework.h>
+#include <bell.h>
 
 using namespace cv;
 
@@ -45,6 +45,8 @@ int main(int argc, char *argv[])
     QLabel mLabel;
     mLabel.setPixmap(QPixmap::fromImage(qimg));
     mLabel.show();
+
+    fnbell();
 
     return a.exec();
 }

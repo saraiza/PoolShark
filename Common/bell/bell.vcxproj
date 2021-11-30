@@ -151,17 +151,51 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Archive.h" />
+    <ClInclude Include="ArchiveBinaryV1.h" />
+    <ClInclude Include="ArchiveRouter.h" />
+    <ClInclude Include="ArchiveRouterAuto.h" />
+    <ClInclude Include="ArchiveTextV1.h" />
     <ClInclude Include="bell.h" />
+    <ClInclude Include="LogCache.h" />
+    <ClInclude Include="LogEntry.h" />
+    <ClInclude Include="LogExporter.h" />
+    <ClInclude Include="LogFile.h" />
+    <ClInclude Include="LogFileCleaner.h" />
+    <ClInclude Include="LoggerCache.h" />
+    <ClInclude Include="LoggerSplitter.h" />
+    <ClInclude Include="LoggerThread.h" />
+    <ClInclude Include="LoggingChain.h" />
+    <ClInclude Include="LogSplitter.h" />
+    <ClInclude Include="LogThread.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="SerMig.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Archive.cpp" />
+    <ClCompile Include="ArchiveBinaryV1.cpp" />
+    <ClCompile Include="ArchiveRouter.cpp" />
+    <ClCompile Include="ArchiveRouterAuto.cpp" />
+    <ClCompile Include="ArchiveTextV1.cpp" />
     <ClCompile Include="bell.cpp" />
+    <ClCompile Include="LogCache.cpp" />
+    <ClCompile Include="LogEntry.cpp" />
+    <ClCompile Include="LogExporter.cpp" />
+    <ClCompile Include="LogFile.cpp" />
+    <ClCompile Include="LogFileCleaner.cpp" />
+    <ClCompile Include="LoggerCache.cpp" />
+    <ClCompile Include="LoggerSplitter.cpp" />
+    <ClCompile Include="LoggerThread.cpp" />
+    <ClCompile Include="LoggingChain.cpp" />
+    <ClCompile Include="LogSplitter.cpp" />
+    <ClCompile Include="LogThread.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SerMig.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
