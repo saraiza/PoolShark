@@ -101,7 +101,6 @@ QString Exception::ToDetailedString() const
 	details.append(QString("    Error Code   : %1\n").arg(m_sErrorCode));
 	details.append("\n");
 #ifdef Q_OS_WIN
-    details.append(m_sysDetails);
 	details.append(QString("STACK TRACE:\n%1\n").arg(Trace()));
 #endif
 	return details;

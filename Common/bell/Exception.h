@@ -9,7 +9,6 @@
 #ifdef Q_OS_WIN
 #include "StackTrace.h"
 #endif
-#include "SystemDetails.h"
 
 // Hacky work around template / className removed DynObj fun
 #define DECLARE_EXCEPTION_NAME(exname) \
@@ -96,7 +95,6 @@ protected:
     // from the container so we can go to UserMessages to get a message string
     QString m_sTypeName;       
     enum Severity m_eSeverity = Severity::ERROR_NON_FATAL;
-	SystemDetails m_sysDetails;
 
 #ifdef Q_OS_WIN
 	StackTrace m_trace;

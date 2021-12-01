@@ -345,19 +345,18 @@ void SerMig::fromFileAtomic(const QString& filename, Options options)
 	fromFile(sBakFile, options);
 }
 
-TODO("This should have been base64, not pctEncoding");
 
 QString SerMig::toPctEncodedString() const
 {
 	QByteArray ba = this->toBlob();
-	QString sDevCal = ba.toPercentEncoding();
+	QString sDevCal = ba.toBase64();
 	return sDevCal;
 }
 
 void SerMig::fromPctEncodedString( const QString& strTxt )
 {
 	QByteArray baUtf8 = strTxt.toUtf8();
-	QByteArray ba = QByteArray::fromPercentEncoding(baUtf8);
+	QByteArray ba = QByteArray::fromBase64(baUtf8);
 	this->fromBlob(ba);
 }
 

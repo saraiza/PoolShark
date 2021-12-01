@@ -14,12 +14,12 @@
 #include <QDebug>
 
 /**
-@brief This namespace contains all things related to our logging system.
+@brief This namespace contains all things related to the logging system.
 
 Logging
 =======
 
-We have our own custom logging system at 908 Devices.  Before going further, here is a quick usage example
+Before going further, here is a quick usage example
 snippet:
 
 ~~~~~~~~~~~~~~~~~~~~~{.c}
