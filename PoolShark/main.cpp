@@ -46,7 +46,5 @@ int main(int argc, char *argv[])
     mLabel.setPixmap(QPixmap::fromImage(qimg));
     mLabel.show();
 
-    fnbell();
-
     return a.exec();
 }
