@@ -110,6 +110,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ChecksumDevice.cpp" />
+    <ClCompile Include="DynObj.cpp" />
     <ClCompile Include="IODeviceThread.cpp" />
     <ClCompile Include="LambdaDispatch.cpp" />
     <ClCompile Include="LambdaTask.cpp" />
@@ -131,6 +132,8 @@
     <ClInclude Include="ConcurrentQueue.h" />
     <QtMoc Include="IODeviceThread.h" />
     <QtMoc Include="LambdaDispatch.h" />
+    <ClInclude Include="Defs.h" />
+    <ClInclude Include="DynObj.h" />
     <ClInclude Include="LambdaTask.h" />
     <ClInclude Include="Logging.h" />
     <ClInclude Include="StringLC.h" />

@@ -8,8 +8,6 @@
 #include <opencv2/highgui.hpp>
 #include <QImage>
 
-#include <bell.h>
-
 using namespace cv;
 
 
