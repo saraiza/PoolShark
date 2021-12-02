@@ -86,6 +86,9 @@ void PipelineStep::SerializeV1(Archive& ar)
 
 	// Restore from name
 	PipelineStep ps = PipelineFactory::CreateStep(m_sName);
+
+	// Copy it
+	*this = ps;
 }
  
 
@@ -118,9 +121,9 @@ void Pipeline::SerializeV1(Archive& ar)
 	{
 		// Write
 		ar.label("Name") << m_sName;
-		ar.label("StepCount") << this->count();
-		//for (PipelineStep& ps : *this)
-		//	ar << ps;
+		ar.label("StepCount") << (int)this->count();
+		for (PipelineStep& ps : *this)
+			ar << ps;
 		return;
 	}
 
@@ -129,12 +132,12 @@ void Pipeline::SerializeV1(Archive& ar)
 	ar.label("Name") >> m_sName;
 	int iCount;
 	ar.label("StepCount") >> iCount;
-	//while (iCount--)
-	//{
-	//	PipelineStep ps;
-	//	ar >> ps;
-	//	this->append(ps);
-	//}
+	while (iCount--)
+	{
+		PipelineStep ps;
+		ar >> ps;
+		this->append(ps);
+	}
 }
 
 
