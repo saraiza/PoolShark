@@ -24,4 +24,11 @@ private:
 	Ui::ParamWidgetFloat ui;
 	QVariant m_vCookie; 
 	bool m_bChanging = false;
+	
+	struct {
+		float fMin = 0.0f;
+		float fMax = 0.0f;
+	} m_tx;
+	float SliderToValue(int iSlider);
+	int ValueToSlider(float fValue);
 };
