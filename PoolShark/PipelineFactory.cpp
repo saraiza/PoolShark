@@ -1,7 +1,17 @@
+#include "stdafx.h"
 #include "PipelineFactory.h"
+#include <opencv2/core/core.hpp>           // cv::Mat
+#include <opencv2/imgcodecs/imgcodecs.hpp>     // cv::imread()
+#include <opencv2/imgproc/imgproc.hpp>     // cv::Canny()
+#include <opencv2/highgui.hpp>
 
 
 PipelineFactory PipelineFactory::ms_instance;
+
+
+
+DECLARE_LOG_SRC("PipelineFactory", LOGCAT_Common);
+
 
 void PipelineFactory::Define(const QString& sName, QList<PipelineStepParam> listParams, PipelineStep::FuncOp funcOp)
 {
@@ -39,6 +49,14 @@ void PipelineFactory::Init()
 			});
 	}
 
+	{
+		QList<PipelineStepParam> listParams;
+		listParams += PipelineStepParam("Kernel", 5, 1, 100);
+		listParams += PipelineStepParam("dog spice", 3.1f, 0.0f, 15.0f);
+		Define("GaussianBlur", listParams, [](const cv::Mat& img, const QList<PipelineStepParam>& listParams) {
+			return img;
+			});
+	}
 	{
 		QList<PipelineStepParam> listParams;
 		listParams += PipelineStepParam("feet", 10, 0, 15);

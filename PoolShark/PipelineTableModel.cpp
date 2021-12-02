@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "PipelineTableModel.h"
 
 PipelineTableModel::PipelineTableModel(QObject* parent)

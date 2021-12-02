@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ParamWidgetFloat.h"
 #include <Util.h>
 

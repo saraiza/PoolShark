@@ -63,8 +63,9 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:__cplusplus /Zc:referenceBinding %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>%OpenCV_DIR%\include;..\Common\bell;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>%OpenCV_DIR%\x64\vc16\lib;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -88,8 +89,9 @@ time /t &gt; $(OutDir)opencvbins.trg</Command>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zc:__cplusplus /Zc:referenceBinding %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>%OpenCV_DIR%\include;..\Common\bell;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>%OpenCV_DIR%\x64\vc16\lib;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
