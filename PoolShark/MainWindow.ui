@@ -68,7 +68,7 @@
           <widget class="ParamWidgetInt" name="wIntExample" native="true"/>
          </item>
          <item>
-          <spacer name="verticalSpacer">
+          <spacer name="paramsSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>

@@ -18,8 +18,10 @@ signals:
 
 private slots:
 	void on_slider_valueChanged(int value);
+	void on_dsb_valueChanged(double value);
 
 private:
 	Ui::ParamWidgetFloat ui;
-	QVariant m_vCookie;
+	QVariant m_vCookie; 
+	bool m_bChanging = false;
 };

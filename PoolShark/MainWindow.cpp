@@ -7,6 +7,8 @@
 #include "ParamWidgetInt.h"
 
 
+DECLARE_LOG_SRC("MainWindow", LOGCAT_Common);
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -45,6 +47,10 @@ void MainWindow::SetPipeline(const Pipeline& pipeline)
 
 void MainWindow::BuildParamWidgets()
 {
+	// Remove the spacer, we will add it back to the end
+	// BUT DON'T DELETE IT!
+	ui.paramsLayout->removeItem(ui.paramsSpacer);
+
 	// Remove any existing child widgets
 	for (QObject* pObj : ui.paramsLayout->children())
 	{
@@ -83,16 +89,25 @@ void MainWindow::BuildParamWidgets()
 			}
 		}
 	}
+
+	// Re-add the spacer to the end
+	ui.paramsLayout->addItem(ui.paramsSpacer);
 }
 
 
 void MainWindow::OnParamChanged(QVariant vCookie, QVariant vNewValue)
 {
+	LOGINFO("OnParamChanged(%s, %s)",
+		qPrintable(vCookie.toString()), qPrintable(vNewValue.toString()));
+
 	// Decode the cookie, it contains two indexes into the tree
 	QStringList sl = vCookie.toString().split(':');
 	Q_ASSERT(sl.count() == 2);
 	int iStep  = sl.at(0).toInt();
 	int iParam = sl.at(1).toInt();
+
+	// Go set the value
+	m_doc.pipeline[iStep].Params()[iParam].SetValue(vNewValue);
 }
 
 

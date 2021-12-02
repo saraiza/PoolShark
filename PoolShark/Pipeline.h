@@ -14,7 +14,10 @@ class PipelineStepParam
 {
 public:
 	PipelineStepParam();
-	PipelineStepParam(const QString& sName, QVariant vValue);
+	PipelineStepParam(const QString& sName,
+					  QVariant vValue,
+					  QVariant vMin, 
+					  QVariant vMax);
 	QString Name() const;
 
 	QVariant Value() const;
@@ -49,12 +52,9 @@ public:
 	cv::Mat Process(const cv::Mat& imgInput);
 	
 	QString Name() const;
-	QList<PipelineStepParam> Params() const;
+	QList<PipelineStepParam>& Params();
+	const QList<PipelineStepParam>& Params() const;
 	void SetParamVal(const QString& sName, const QVariant& vVal);
-
-protected:
-	// Derived class should call this
-	void DefineParam(const QString& sName, const QVariant& vVal);
 
 private:
 	QString m_sName;

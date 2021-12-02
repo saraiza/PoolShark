@@ -31,9 +31,9 @@ void PipelineFactory::Init()
 {
 	{
 		QList<PipelineStepParam> listParams;
-		listParams += PipelineStepParam("age", QVariant(1));
-		listParams += PipelineStepParam("dogs", QVariant(2));
-		listParams += PipelineStepParam("dog spice", QVariant(3.1f));
+		listParams += PipelineStepParam("age", 1, 0, 10);
+		listParams += PipelineStepParam("dogs", 2,0,20);
+		listParams += PipelineStepParam("dog spice", 3.1f, 0.0f, 15.0f);
 		Define("Doggy Spice", listParams, [](const cv::Mat& img, const QList<PipelineStepParam>& listParams) {
 			return img;
 			});
@@ -41,9 +41,9 @@ void PipelineFactory::Init()
 
 	{
 		QList<PipelineStepParam> listParams;
-		listParams += PipelineStepParam("feet", QVariant(10));
-		listParams += PipelineStepParam("cats", QVariant(20));
-		listParams += PipelineStepParam("cat spice", QVariant(30.1f));
+		listParams += PipelineStepParam("feet", 10, 0, 15);
+		listParams += PipelineStepParam("cats", 20, 15,25);
+		listParams += PipelineStepParam("cat spice", 30.1f, 5.0f, 20.0f);
 		Define("Cat Feet", listParams, [](const cv::Mat& img, const QList<PipelineStepParam>& listParams) {
 			return img;
 			});

@@ -121,30 +121,7 @@ private:
 };
 
 
-/**
-@brief Handy class for ensuring that a bool untoggles in a function.
-
-Use this on the stack to set a bool value on the stack and restore it to
-its previous value when leaving.
-*/
-class BoolSetAndRestore
-{
-public:
-    BoolSetAndRestore(bool *pBool, bool bNewState)
-    {
-        m_bResetState = *pBool;
-        m_pb = pBool;
-        *m_pb = bNewState;
-    }
-    ~BoolSetAndRestore()
-    {
-        *m_pb = m_bResetState;
-    }
-private:
-    bool m_bResetState;
-    bool *m_pb = nullptr;
-};
 
 /// Configure the thread name of the current thread.  The thread name will show up in the Visual Studio Debugger
 /// for the desktop build. Very handy.
-static void SetDebugThreadName(QString name);
+//static void SetDebugThreadName(QString name);

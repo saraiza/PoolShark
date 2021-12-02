@@ -6,10 +6,16 @@ PipelineStepParam::PipelineStepParam()
 {
 }
 
-PipelineStepParam::PipelineStepParam(const QString& sName, QVariant vValue)
+PipelineStepParam::PipelineStepParam(
+	const QString& sName, 
+	QVariant vValue,
+	QVariant vMin,
+	QVariant vMax)
 {
 	m_sParamName = sName;
 	m_vParamVal = vValue;
+	m_vMinVal = vMin;
+	m_vMaxVal = vMax;
 }
 
 QString PipelineStepParam::Name() const
@@ -57,7 +63,12 @@ QString PipelineStep::Name() const
 	return m_sName;
 }
 
-QList<PipelineStepParam> PipelineStep::Params() const
+const QList<PipelineStepParam>& PipelineStep::Params() const
+{
+	return m_listParams;
+}
+
+QList<PipelineStepParam>& PipelineStep::Params()
 {
 	return m_listParams;
 }
@@ -67,14 +78,6 @@ cv::Mat PipelineStep::Process(const cv::Mat& imgInput)
 	return m_funcOp(imgInput, m_listParams);
 }
 
-
-void PipelineStep::DefineParam(const QString& sName, const QVariant& vVal)
-{
-	int iIdx = m_listParams.count();
-	m_listParams += PipelineStepParam(sName, vVal);
-	Q_ASSERT(!m_mapParamPositions.contains(sName));
-	m_mapParamPositions[sName] = iIdx;
-}
 
 void PipelineStep::SetParamVal(const QString& sName, const QVariant& vVal)
 {
