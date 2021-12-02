@@ -3,6 +3,8 @@
 #include "PipelineFactory.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include "ParamWidgetFloat.h"
+#include "ParamWidgetInt.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -12,7 +14,12 @@ MainWindow::MainWindow(QWidget *parent)
 	m_sWindowTitle = windowTitle();
 	m_pModel = new PipelineTableModel(this);
 	ui.viewSteps->setModel(m_pModel);
-	m_pModel->SetPipeline(&m_doc.pipeline);
+
+	// Cleanup the examples
+	delete ui.wFloatExample;
+	ui.wFloatExample = nullptr;
+	delete ui.wIntExample;
+	ui.wIntExample = nullptr;
 }
 
 
@@ -22,17 +29,85 @@ void MainWindow::OnUnhandledException(ExceptionContainer exc)
 	QMessageBox::warning(this, "Unhandled Exception", sMsg);
 }
 
+
+
+void MainWindow::SetPipeline(const Pipeline& pipeline)
+{
+	m_doc.pipeline = pipeline;
+	m_pModel->SetPipeline(&m_doc.pipeline);
+	BuildParamWidgets();
+
+	if(m_doc.sFilepath.isEmpty())
+		setWindowTitle(m_sWindowTitle);
+	else
+		setWindowTitle(m_sWindowTitle + " - " + m_doc.sFilepath);
+}
+
+void MainWindow::BuildParamWidgets()
+{
+	// Remove any existing child widgets
+	for (QObject* pObj : ui.paramsLayout->children())
+	{
+		QWidget* pW = dynamic_cast<QWidget*>(pObj);
+		if (pW)
+			delete pW;
+	}
+
+	// Iterate through all parameters in all steps.
+	for (int iStep = 0; iStep < m_doc.pipeline.count(); ++iStep)
+	{
+		const PipelineStep& ps = m_doc.pipeline.at(iStep);
+
+		for (int iParam = 0; iParam < ps.Params().count(); ++iParam)
+		{
+			const PipelineStepParam& psParam = ps.Params().at(iParam);
+			QMetaType::fromType<float>();
+			int iType = psParam.Value().type();
+			bool bIntType = ((int)QMetaType::Int == iType);
+
+			QString sCookie = QString("%1:%2").arg(iStep).arg(iParam);
+			QString sParamFullName = QString("%1:%2").arg(ps.Name(), psParam.Name());
+			if (bIntType)
+			{
+				ParamWidgetInt* pW = new ParamWidgetInt(this);
+				pW->Init(sParamFullName, psParam, sCookie);
+				VERIFY(connect(pW, &ParamWidgetInt::ParamChanged, this, &MainWindow::OnParamChanged));
+				ui.paramsLayout->addWidget(pW);
+			}
+			else
+			{
+				ParamWidgetFloat* pW = new ParamWidgetFloat(this);
+				pW->Init(sParamFullName, psParam, sCookie);
+				VERIFY(connect(pW, &ParamWidgetFloat::ParamChanged, this, &MainWindow::OnParamChanged));
+				ui.paramsLayout->addWidget(pW);
+			}
+		}
+	}
+}
+
+
+void MainWindow::OnParamChanged(QVariant vCookie, QVariant vNewValue)
+{
+	// Decode the cookie, it contains two indexes into the tree
+	QStringList sl = vCookie.toString().split(':');
+	Q_ASSERT(sl.count() == 2);
+	int iStep  = sl.at(0).toInt();
+	int iParam = sl.at(1).toInt();
+}
+
+
 void MainWindow::on_actionNew_triggered()
 {
-    m_doc.pipeline = Pipeline();
+	// Build a test pipeline TEMPORARY!
+	QStringList slNames = PipelineFactory::StepNames();
+	Pipeline pipeline;
+	for (QString s : slNames)
+		pipeline += PipelineFactory::CreateStep(s);
+	pipeline.SetName("Test");
+
 	m_doc.bDirty = true;
 	m_doc.sFilepath.clear();
-
-	QStringList slNames = PipelineFactory::StepNames();
-	for (QString s : slNames)
-		m_doc.pipeline += PipelineFactory::CreateStep(s);
-	setWindowTitle(m_sWindowTitle);
-	m_pModel->SetPipeline(&m_doc.pipeline);
+	SetPipeline(pipeline);
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -44,11 +119,11 @@ void MainWindow::on_actionOpen_triggered()
 		"Imaging Pipeline (*.ipl)",
 		&sFilter);
 
-	m_doc.pipeline.fromFile(sFilepath);
+	Pipeline pipeline;
+	pipeline.fromFile(sFilepath);
 	m_doc.sFilepath = sFilepath;
 	m_doc.bDirty = false;
-	setWindowTitle(m_sWindowTitle + " - " + m_doc.sFilepath);
-	m_pModel->SetPipeline(&m_doc.pipeline);
+	SetPipeline(pipeline);
 }
 
 void MainWindow::on_actionSave_triggered()

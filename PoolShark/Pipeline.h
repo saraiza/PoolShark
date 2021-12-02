@@ -16,12 +16,17 @@ public:
 	PipelineStepParam();
 	PipelineStepParam(const QString& sName, QVariant vValue);
 	QString Name() const;
+
 	QVariant Value() const;
 	void SetValue(const QVariant& vVal);
+	QVariant MinValue() const;
+	QVariant MaxValue() const;
 
 private:
 	QString m_sParamName;
 	QVariant m_vParamVal;
+	QVariant m_vMinVal;
+	QVariant m_vMaxVal;
 };
 
 

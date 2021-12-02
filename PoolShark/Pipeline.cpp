@@ -27,6 +27,17 @@ void PipelineStepParam::SetValue(const QVariant& vVal)
 	m_vParamVal = vVal;
 }
 
+
+QVariant PipelineStepParam::MinValue() const
+{
+	return m_vMinVal;
+}
+
+QVariant PipelineStepParam::MaxValue() const
+{
+	return m_vMaxVal;
+}
+
 /*************************************************************/
 
 PipelineStep::PipelineStep()

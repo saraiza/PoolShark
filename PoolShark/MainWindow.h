@@ -16,6 +16,7 @@ public slots:
     void OnUnhandledException(ExceptionContainer exc);
 
 private slots:
+    void OnParamChanged(QVariant vCookie, QVariant vNewValue);
     void on_actionNew_triggered();
     void on_actionOpen_triggered();
     void on_actionSave_triggered();
@@ -25,6 +26,9 @@ private:
     Ui::MainWindowClass ui;
     QString m_sWindowTitle;
     PipelineTableModel* m_pModel = nullptr;
+
+    void SetPipeline(const Pipeline& pipeline);
+    void BuildParamWidgets();
 
     struct {
         Pipeline pipeline; ///< The main user 'document'

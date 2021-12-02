@@ -64,7 +64,7 @@
     <ClCompile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>%OpenCV_DIR%\include;..\Common\bell;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%OpenCV_DIR%\include;..\Common\bell;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>%OpenCV_DIR%\x64\vc16\lib;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -89,7 +89,7 @@ time /t &gt; $(OutDir)opencvbins.trg</Command>
     <ClCompile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>%OpenCV_DIR%\include;..\Common\bell;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%OpenCV_DIR%\include;..\Common\bell;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>%OpenCV_DIR%\x64\vc16\lib;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -154,10 +154,14 @@ time /t &gt; $(OutDir)opencvbins.trg</Command>
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="main.cpp" />
     <QtMoc Include="Application.h" />
+    <QtMoc Include="ParamWidgetInt.h" />
+    <QtMoc Include="ParamWidgetFloat.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="PipelineFactory.h" />
     <QtMoc Include="PipelineTableModel.h" />
     <ClInclude Include="stdafx.h" />
+    <ClCompile Include="ParamWidgetFloat.cpp" />
+    <ClCompile Include="ParamWidgetInt.cpp" />
     <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="PipelineFactory.cpp" />
     <ClCompile Include="PipelineTableModel.cpp" />
@@ -165,6 +169,8 @@ time /t &gt; $(OutDir)opencvbins.trg</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <QtUic Include="ParamWidgetFloat.ui" />
+    <QtUic Include="ParamWidgetInt.ui" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
