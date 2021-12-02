@@ -9,7 +9,10 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
-
+	m_sWindowTitle = windowTitle();
+	m_pModel = new PipelineTableModel(this);
+	ui.viewSteps->setModel(m_pModel);
+	m_pModel->SetPipeline(&m_doc.pipeline);
 }
 
 
@@ -28,6 +31,8 @@ void MainWindow::on_actionNew_triggered()
 	QStringList slNames = PipelineFactory::StepNames();
 	for (QString s : slNames)
 		m_doc.pipeline += PipelineFactory::CreateStep(s);
+	setWindowTitle(m_sWindowTitle);
+	m_pModel->SetPipeline(&m_doc.pipeline);
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -42,6 +47,8 @@ void MainWindow::on_actionOpen_triggered()
 	m_doc.pipeline.fromFile(sFilepath);
 	m_doc.sFilepath = sFilepath;
 	m_doc.bDirty = false;
+	setWindowTitle(m_sWindowTitle + " - " + m_doc.sFilepath);
+	m_pModel->SetPipeline(&m_doc.pipeline);
 }
 
 void MainWindow::on_actionSave_triggered()
@@ -67,4 +74,5 @@ void MainWindow::on_actionSaveAs_triggered()
 	m_doc.pipeline.toFile(sFilepath);
 	m_doc.sFilepath = sFilepath;
 	m_doc.bDirty = false;
+	setWindowTitle(m_sWindowTitle + " - " + m_doc.sFilepath);
 }

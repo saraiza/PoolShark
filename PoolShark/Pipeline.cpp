@@ -41,6 +41,11 @@ PipelineStep::PipelineStep(const QString& sName, const QList<PipelineStepParam>&
 	m_funcOp = funcOp;
 }
 
+QString PipelineStep::Name() const
+{
+	return m_sName;
+}
+
 QList<PipelineStepParam> PipelineStep::Params() const
 {
 	return m_listParams;

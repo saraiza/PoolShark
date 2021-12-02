@@ -3,6 +3,7 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_MainWindow.h"
 #include "Pipeline.h"
+#include "PipelineTableModel.h"
 
 class MainWindow : public QMainWindow
 {
@@ -22,6 +23,8 @@ private slots:
 
 private:
     Ui::MainWindowClass ui;
+    QString m_sWindowTitle;
+    PipelineTableModel* m_pModel = nullptr;
 
     struct {
         Pipeline pipeline; ///< The main user 'document'
