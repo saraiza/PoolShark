@@ -150,8 +150,10 @@ time /t &gt; $(OutDir)opencvbins.trg</Command>
     <QtRcc Include="PoolShark.qrc" />
     <QtUic Include="MainWindow.ui" />
     <QtMoc Include="MainWindow.h" />
+    <ClCompile Include="Application.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="main.cpp" />
+    <QtMoc Include="Application.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="PipelineFactory.h" />
     <ClInclude Include="stdafx.h" />

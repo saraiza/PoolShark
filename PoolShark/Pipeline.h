@@ -68,16 +68,17 @@ SERMIG_ARCHIVERS(PipelineStep)
 @brief OpenCV sequence of processing steps
 
 */
-class Pipeline : public SerMig
+class Pipeline : public QList<PipelineStep>, public SerMig
 {
 public:
 	DECLARE_SERMIG;
+	Pipeline();
 	QString Name() const;
 	void SetName(const QString& sName);
 
 private:
 	QString m_sName;
-	QList<PipelineStep> m_listSteps;
+	bool m_bDirty = true;
 
 	void SerializeV1(Archive& ar);
 };

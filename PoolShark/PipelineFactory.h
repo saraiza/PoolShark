@@ -3,7 +3,7 @@
 #include <functional>
 
 /**
-@brief OpenCV sequence of processing steps
+@brief Generate a step object by name
 
 */
 class PipelineFactory
@@ -11,6 +11,7 @@ class PipelineFactory
 public:
 	void Init();
 	static PipelineStep CreateStep(const QString& sName);
+	static QStringList StepNames();
 
 private:
 	PipelineFactory();

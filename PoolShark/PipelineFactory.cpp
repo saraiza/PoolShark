@@ -16,6 +16,12 @@ PipelineStep PipelineFactory::CreateStep(const QString& sName)
 	return ms_instance.m_mapTemplates.value(sName);
 }
 
+
+QStringList PipelineFactory::StepNames()
+{
+	return ms_instance.m_mapTemplates.keys();
+}
+
 PipelineFactory::PipelineFactory()
 {
 	Init();
@@ -38,7 +44,7 @@ void PipelineFactory::Init()
 		listParams += PipelineStepParam("feet", QVariant(10));
 		listParams += PipelineStepParam("cats", QVariant(20));
 		listParams += PipelineStepParam("spice", QVariant(30.1f));
-		Define("Doggy Spice", listParams, [](const cv::Mat& img, const QList<PipelineStepParam>& listParams) {
+		Define("Cat Feet", listParams, [](const cv::Mat& img, const QList<PipelineStepParam>& listParams) {
 			return img;
 			});
 	}

@@ -91,6 +91,11 @@ void PipelineStep::SerializeV1(Archive& ar)
 
 /*************************************************************/
 
+Pipeline::Pipeline()
+{
+	m_sName = "Untitled";
+}
+
 QString Pipeline::Name() const
 {
 	return m_sName;
@@ -113,13 +118,23 @@ void Pipeline::SerializeV1(Archive& ar)
 	{
 		// Write
 		ar.label("Name") << m_sName;
-		ar.label("Steps") << m_listSteps;
+		ar.label("StepCount") << this->count();
+		//for (PipelineStep& ps : *this)
+		//	ar << ps;
 		return;
 	}
 
 	// Read
+	this->clear();
 	ar.label("Name") >> m_sName;
-	ar.label("Steps") >> m_listSteps;
+	int iCount;
+	ar.label("StepCount") >> iCount;
+	//while (iCount--)
+	//{
+	//	PipelineStep ps;
+	//	ar >> ps;
+	//	this->append(ps);
+	//}
 }
 
 
