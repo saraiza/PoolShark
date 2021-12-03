@@ -81,7 +81,7 @@ public:
 	QString Name() const;
 	void SetName(const QString& sName);
 
-	void Process(const cv::Mat& img);
+	QList<cv::Mat> Process(const cv::Mat& img);
 
 private:
 	QString m_sName;

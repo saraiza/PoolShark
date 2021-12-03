@@ -16,8 +16,13 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui.setupUi(this);
 	m_sWindowTitle = windowTitle();
-	m_pModel = new PipelineTableModel(this);
-	ui.viewSteps->setModel(m_pModel);
+
+	m_pPipelineModel = new PipelineTableModel(this);
+	ui.viewSteps->setModel(m_pPipelineModel);
+
+
+	m_pInputsModel = new QStringListModel(this);
+	ui.viewInputs->setModel(m_pInputsModel);
 
 	// Cleanup the examples
 	delete ui.wFloatExample;
@@ -38,7 +43,7 @@ void MainWindow::OnUnhandledException(ExceptionContainer exc)
 void MainWindow::SetPipeline(const Pipeline& pipeline)
 {
 	m_doc.pipeline = pipeline;
-	m_pModel->SetPipeline(&m_doc.pipeline);
+	m_pPipelineModel->SetPipeline(&m_doc.pipeline);
 	BuildParamWidgets();
 
 	if(m_doc.sFilepath.isEmpty())
@@ -115,7 +120,20 @@ void MainWindow::OnParamChanged(QVariant vCookie, QVariant vNewValue)
 	QString sFilename = "C:/dev/PoolShark.a/test/images/IMG_4430.jpg";
 	cv::Mat img;
 	img = cv::imread(qPrintable(sFilename));
-	m_doc.pipeline.Process(img);
+	QList<cv::Mat> listImages = m_doc.pipeline.Process(img);
+}
+
+
+void MainWindow::on_pbSelectInputs_clicked()
+{
+	QString sDir;
+	QString sFilter("Images (*.png *.jpg)");
+
+	QStringList sl = QFileDialog::getOpenFileNames(this, "Select Input Images", sDir, sFilter);
+	if (sl.isEmpty())
+		return;
+	m_slInputs = sl;
+	m_pInputsModel->setStringList(m_slInputs);
 }
 
 
