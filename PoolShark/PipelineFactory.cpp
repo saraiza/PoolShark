@@ -6,6 +6,8 @@
 #include <opencv2/highgui.hpp>
 
 
+using namespace cv;
+
 PipelineFactory PipelineFactory::ms_instance;
 
 
@@ -52,11 +54,21 @@ void PipelineFactory::Init()
 	{
 		QList<PipelineStepParam> listParams;
 		listParams += PipelineStepParam("Kernel", 5, 1, 100);
-		listParams += PipelineStepParam("dog spice", 3.1f, 0.0f, 15.0f);
 		Define("GaussianBlur", listParams, [](const cv::Mat& img, const QList<PipelineStepParam>& listParams) {
-			return img;
+			cv::Mat imgOut;
+			int iKernel = listParams.at(0).Value().toInt();
+
+			// The kernel must be odd or zero
+			if (iKernel > 0 && iKernel % 2 == 0)
+				--iKernel;
+			else if (iKernel < 0)
+				iKernel = 0;
+
+			cv::GaussianBlur(img, imgOut, Size(iKernel, iKernel), 0.0); 
+			return imgOut;
 			});
 	}
+
 	{
 		QList<PipelineStepParam> listParams;
 		listParams += PipelineStepParam("feet", 10, 0, 15);

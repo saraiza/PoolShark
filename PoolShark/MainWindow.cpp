@@ -6,6 +6,8 @@
 #include "ParamWidgetFloat.h"
 #include "ParamWidgetInt.h"
 
+#include <opencv2/imgcodecs/imgcodecs.hpp>     // cv::imread()
+
 
 DECLARE_LOG_SRC("MainWindow", LOGCAT_Common);
 
@@ -108,6 +110,12 @@ void MainWindow::OnParamChanged(QVariant vCookie, QVariant vNewValue)
 
 	// Go set the value
 	m_doc.pipeline[iStep].Params()[iParam].SetValue(vNewValue);
+
+	// Rerun the entire pipeline
+	QString sFilename = "C:/dev/PoolShark.a/test/images/IMG_4430.jpg";
+	cv::Mat img;
+	img = cv::imread(qPrintable(sFilename));
+	m_doc.pipeline.Process(img);
 }
 
 
