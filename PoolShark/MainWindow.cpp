@@ -142,6 +142,9 @@ void MainWindow::on_actionOpen_triggered()
 		"Imaging Pipeline (*.ipl)",
 		&sFilter);
 
+	if (sFilepath.isEmpty())
+		return;
+
 	Pipeline pipeline;
 	pipeline.fromFile(sFilepath);
 	m_doc.sFilepath = sFilepath;
