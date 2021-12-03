@@ -5,6 +5,7 @@
 #include "ui_MainWindow.h"
 #include "Pipeline.h"
 #include "PipelineTableModel.h"
+#include "ImagesWindow.h"
 
 
 
@@ -25,6 +26,7 @@ private slots:
     void on_actionSave_triggered();
     void on_actionSaveAs_triggered();
     void on_pbSelectInputs_clicked();
+    void OnImagesWindowClosing();
 
 private:
     Ui::MainWindowClass ui;
@@ -40,6 +42,9 @@ private:
         QString sFilepath;
     } m_doc;
 
-    QStringList m_slInputs;
+    QStringList m_slInputImageFiles;
     QStringListModel* m_pInputsModel;
+
+    QList<ImagesWindow*> m_listImageWindows;
+    void CreateImageWindows();
 };

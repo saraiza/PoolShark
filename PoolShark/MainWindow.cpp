@@ -124,6 +124,7 @@ void MainWindow::OnParamChanged(QVariant vCookie, QVariant vNewValue)
 }
 
 
+
 void MainWindow::on_pbSelectInputs_clicked()
 {
 	QString sDir;
@@ -132,10 +133,40 @@ void MainWindow::on_pbSelectInputs_clicked()
 	QStringList sl = QFileDialog::getOpenFileNames(this, "Select Input Images", sDir, sFilter);
 	if (sl.isEmpty())
 		return;
-	m_slInputs = sl;
-	m_pInputsModel->setStringList(m_slInputs);
+	m_slInputImageFiles = sl;
+	m_pInputsModel->setStringList(m_slInputImageFiles);
+
+	CreateImageWindows();
 }
 
+
+void MainWindow::CreateImageWindows()
+{
+	// Remove all existing windows
+	for (ImagesWindow* pWnd : m_listImageWindows)
+		delete pWnd;
+	m_listImageWindows.clear();
+
+	ImagesWindow* p = new ImagesWindow("test", this);
+	p->showNormal();
+	p->resize(800, 600);
+	VERIFY(connect(p, &ImagesWindow::Closing, this, &MainWindow::OnImagesWindowClosing));
+	return;
+
+
+	// Generate a new window for each input file
+	for (QString sFilename : m_slInputImageFiles)
+	{
+		ImagesWindow* pWnd = new ImagesWindow(sFilename, this);
+		m_listImageWindows += pWnd;
+		pWnd->show();
+	}
+}
+
+void MainWindow::OnImagesWindowClosing()
+{
+	ImagesWindow* pWnd = dynamic_cast<ImagesWindow*>(sender());
+}
 
 void MainWindow::on_actionNew_triggered()
 {
