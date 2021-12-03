@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <opencv2/core/core.hpp>
 #include "ui_ImagesWindow.h"
+#include <QImage>
 
 class ImagesWindow : public QWidget
 {
@@ -22,4 +23,6 @@ protected:
 
 private:
 	Ui::ImagesWindow ui;
+
+	QImage Mat2QImage(const cv::Mat& mat);
 };

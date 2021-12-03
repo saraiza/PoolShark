@@ -42,9 +42,11 @@ private:
         QString sFilepath;
     } m_doc;
 
-    QStringList m_slInputImageFiles;
     QStringListModel* m_pInputsModel;
+    QStringList m_slInputFiles;
+    QList<cv::Mat> m_listInputImages;
 
     QList<ImagesWindow*> m_listImageWindows;
     void CreateImageWindows();
+    void ProcessPipeline();
 };

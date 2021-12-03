@@ -123,7 +123,16 @@ void MainWindow::OnParamChanged(QVariant vCookie, QVariant vNewValue)
 	QList<cv::Mat> listImages = m_doc.pipeline.Process(img);
 }
 
-
+void MainWindow::ProcessPipeline()
+{
+	CreateImageWindows();
+	for (int i = 0; i < m_listInputImages.count(); ++i)
+	{
+		// Run the pipeline
+		QList<cv::Mat> listImages = m_doc.pipeline.Process(m_listInputImages.at(i));
+		m_listImageWindows[i]->SetImages(listImages);
+	}
+}
 
 void MainWindow::on_pbSelectInputs_clicked()
 {
@@ -133,39 +142,58 @@ void MainWindow::on_pbSelectInputs_clicked()
 	QStringList sl = QFileDialog::getOpenFileNames(this, "Select Input Images", sDir, sFilter);
 	if (sl.isEmpty())
 		return;
-	m_slInputImageFiles = sl;
-	m_pInputsModel->setStringList(m_slInputImageFiles);
+	m_slInputFiles = sl;
+	m_pInputsModel->setStringList(m_slInputFiles);
+
+	// Load all the images
+	m_listInputImages.clear();
+	for (int i = 0; i < m_slInputFiles.count(); ++i)
+	{
+		cv::Mat img = cv::imread(qPrintable(m_slInputFiles.at(i)));
+		m_listInputImages += img;
+	}
 
 	CreateImageWindows();
 }
 
-
 void MainWindow::CreateImageWindows()
 {
-	// Remove all existing windows
-	for (ImagesWindow* pWnd : m_listImageWindows)
-		delete pWnd;
-	m_listImageWindows.clear();
+	// We might need to grow or shrink the number of windows
+	int iImageCount = m_listInputImages.count();
 
-	ImagesWindow* p = new ImagesWindow("test", this);
-	p->showNormal();
-	p->resize(800, 600);
-	VERIFY(connect(p, &ImagesWindow::Closing, this, &MainWindow::OnImagesWindowClosing));
-	return;
-
-
-	// Generate a new window for each input file
-	for (QString sFilename : m_slInputImageFiles)
+	while(iImageCount < m_listImageWindows.count())
 	{
-		ImagesWindow* pWnd = new ImagesWindow(sFilename, this);
-		m_listImageWindows += pWnd;
-		pWnd->show();
+		// Prune old windows
+	}
+
+	m_listImageWindows.resize(iImageCount);
+	
+	// Initialize empty slots
+	for (int i = 0; i < iImageCount; ++i)
+	{
+		if (nullptr == m_listImageWindows[i])
+		{
+			ImagesWindow* pWnd = new ImagesWindow(m_slInputFiles.at(i), nullptr);
+			m_listImageWindows[i] = pWnd;
+			pWnd->show();
+			VERIFY(connect(pWnd, &ImagesWindow::Closing, this, &MainWindow::OnImagesWindowClosing));
+		}
 	}
 }
 
 void MainWindow::OnImagesWindowClosing()
 {
 	ImagesWindow* pWnd = dynamic_cast<ImagesWindow*>(sender());
+	
+	// Find the window in the list and zero it out
+	for (int i = 0; i < m_listImageWindows.count(); ++i)
+	{
+		if (m_listImageWindows.at(i) == pWnd)
+		{
+			m_listImageWindows[i] = nullptr;
+			return;
+		}
+	}
 }
 
 void MainWindow::on_actionNew_triggered()
