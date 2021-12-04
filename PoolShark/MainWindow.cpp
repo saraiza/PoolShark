@@ -31,6 +31,16 @@ MainWindow::MainWindow(QWidget *parent)
 	ui.wIntExample = nullptr;
 }
 
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+	for (ImagesWindow* pImgWnd : m_listImageWindows)
+	{
+		if (pImgWnd)
+			delete pImgWnd;
+	}
+
+	m_listImageWindows.clear();
+}
 
 void MainWindow::OnUnhandledException(ExceptionContainer exc)
 {
@@ -140,6 +150,7 @@ void MainWindow::on_pbSelectInputs_clicked()
 	QStringList sl = QFileDialog::getOpenFileNames(this, "Select Input Images", sDir, sFilter);
 	if (sl.isEmpty())
 		return;
+
 	m_slInputFiles = sl;
 	m_pInputsModel->setStringList(m_slInputFiles);
 
@@ -151,7 +162,7 @@ void MainWindow::on_pbSelectInputs_clicked()
 		m_listInputImages += img;
 	}
 
-	CreateImageWindows();
+	ProcessPipeline();
 }
 
 void MainWindow::CreateImageWindows()
@@ -199,8 +210,9 @@ void MainWindow::on_actionNew_triggered()
 	// Build a test pipeline TEMPORARY!
 	QStringList slNames = PipelineFactory::StepNames();
 	Pipeline pipeline;
-	for (QString s : slNames)
-		pipeline += PipelineFactory::CreateStep(s);
+	pipeline += PipelineFactory::CreateStep("GaussianBlur");
+	//for (QString s : slNames)
+	//	pipeline += PipelineFactory::CreateStep(s);
 	pipeline.SetName("Test");
 
 	m_doc.bDirty = true;

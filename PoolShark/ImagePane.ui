@@ -44,7 +44,7 @@
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">color: rgb(199, 199, 199);</string>
+    <string notr="true">color: rgba(255, 0, 0, 128);</string>
    </property>
    <property name="text">
     <string>14</string>

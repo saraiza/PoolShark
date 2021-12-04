@@ -28,6 +28,9 @@ private slots:
     void on_pbSelectInputs_clicked();
     void OnImagesWindowClosing();
 
+protected:
+    virtual void closeEvent(QCloseEvent* event) override;
+
 private:
     Ui::MainWindowClass ui;
     QString m_sWindowTitle;

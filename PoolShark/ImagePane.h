@@ -25,5 +25,7 @@ protected:
 private:
 	Ui::ImagePane ui;
 
+	cv::Mat m_originalImage;
+	void Refresh();	///< Redraw the image
 	QImage Mat2QImage(const cv::Mat& mat);
 };
