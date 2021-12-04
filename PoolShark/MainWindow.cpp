@@ -116,16 +116,14 @@ void MainWindow::OnParamChanged(QVariant vCookie, QVariant vNewValue)
 	// Go set the value
 	m_doc.pipeline[iStep].Params()[iParam].SetValue(vNewValue);
 
-	// Rerun the entire pipeline
-	QString sFilename = "C:/dev/PoolShark.a/test/images/IMG_4430.jpg";
-	cv::Mat img;
-	img = cv::imread(qPrintable(sFilename));
-	QList<cv::Mat> listImages = m_doc.pipeline.Process(img);
+	ProcessPipeline();
 }
 
 void MainWindow::ProcessPipeline()
 {
 	CreateImageWindows();
+
+	// Rerun the entire pipeline for each input image
 	for (int i = 0; i < m_listInputImages.count(); ++i)
 	{
 		// Run the pipeline

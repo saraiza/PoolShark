@@ -23,6 +23,7 @@ protected:
 
 private:
 	Ui::ImagesWindow ui;
-
-	QImage Mat2QImage(const cv::Mat& mat);
+	void RebuildPanes(int iCount);
+	void ClearGrid();
+	QList<ImagePane*> m_listPanes;
 };

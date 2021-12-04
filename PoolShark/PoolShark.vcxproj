@@ -150,6 +150,7 @@ time /t &gt; $(OutDir)opencvbins.trg</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <QtRcc Include="PoolShark.qrc" />
+    <QtUic Include="ImagePane.ui" />
     <QtUic Include="ImagesWindow.ui" />
     <QtUic Include="MainWindow.ui" />
     <QtMoc Include="MainWindow.h" />
@@ -157,7 +158,14 @@ time /t &gt; $(OutDir)opencvbins.trg</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ImagesWindow.cpp" />
+    <ClCompile Include="ImagePane.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ImagesWindow.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="MainWindow.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
@@ -170,6 +178,7 @@ time /t &gt; $(OutDir)opencvbins.trg</Command>
     <QtMoc Include="ParamWidgetInt.h" />
     <QtMoc Include="ParamWidgetFloat.h" />
     <QtMoc Include="ImagesWindow.h" />
+    <QtMoc Include="ImagePane.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="PipelineFactory.h" />
     <QtMoc Include="PipelineTableModel.h" />
