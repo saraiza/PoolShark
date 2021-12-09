@@ -252,12 +252,7 @@ void MainWindow::OnImagesWindowClosing()
 
 void MainWindow::on_actionNew_triggered()
 {
-	// Build a test pipeline TEMPORARY!
-	QStringList slNames = PipelineFactory::StepNames();
 	Pipeline pipeline;
-	pipeline += PipelineFactory::CreateStep("GaussianBlur");
-	//for (QString s : slNames)
-	//	pipeline += PipelineFactory::CreateStep(s);
 	pipeline.SetName("Test");
 
 	m_doc.bDirty = true;
