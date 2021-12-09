@@ -27,17 +27,25 @@ private slots:
     void on_actionSaveAs_triggered();
     void on_pbSelectInputs_clicked();
     void OnImagesWindowClosing();
+    void on_pbRemoveStep_clicked();
+    void on_pbMoveStepUp_clicked();
+    void on_pbMoveStepDown_clicked();
+    void OnAddStep();
+    void OnViewSteps_currentRowChanged(const QModelIndex& current, const QModelIndex& previous);
 
 protected:
     virtual void closeEvent(QCloseEvent* event) override;
 
 private:
     Ui::MainWindowClass ui;
+    void UpdateControls();
     QString m_sWindowTitle;
     PipelineTableModel* m_pPipelineModel = nullptr;
 
     void SetPipeline(const Pipeline& pipeline);
+    void PipelineChanged();
     void BuildParamWidgets();
+    QList<QWidget*> m_listSliders;
 
     struct {
         Pipeline pipeline; ///< The main user 'document'

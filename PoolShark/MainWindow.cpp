@@ -29,6 +29,20 @@ MainWindow::MainWindow(QWidget *parent)
 	ui.wFloatExample = nullptr;
 	delete ui.wIntExample;
 	ui.wIntExample = nullptr;
+
+	// Setup the add step menu
+	QMenu* pAddStepMenu = new QMenu(this);
+	for (QString sClassName : PipelineFactory::StepNames())
+	{
+		QAction* pAction = pAddStepMenu->addAction(sClassName);
+		pAction->setData(sClassName);
+		VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnAddStep())));
+		//pAddStepMenu->addSeparator();
+	}
+	ui.pbAddStep->setMenu(pAddStepMenu);
+	VERIFY(connect(ui.viewSteps->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &MainWindow::OnViewSteps_currentRowChanged));
+
+	UpdateControls();
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
@@ -42,10 +56,35 @@ void MainWindow::closeEvent(QCloseEvent* event)
 	m_listImageWindows.clear();
 }
 
+void MainWindow::OnViewSteps_currentRowChanged(const QModelIndex& current, const QModelIndex& previous)
+{
+	UpdateControls();
+}
+
+void MainWindow::UpdateControls()
+{
+	QModelIndexList mil = ui.viewSteps->selectionModel()->selectedIndexes();
+	int iStepSelectionCount = mil.count();
+	int iSelRow = ui.viewSteps->selectionModel()->currentIndex().row();
+	LOGINFO("iSelCount=%d iSelRow=%d", iStepSelectionCount, iSelRow);
+	ui.pbRemoveStep->setEnabled(iStepSelectionCount > 0);
+	ui.pbMoveStepUp->setEnabled(iStepSelectionCount == 1 && iSelRow > 0);
+	ui.pbMoveStepDown->setEnabled(iStepSelectionCount == 1 && iSelRow <= m_pPipelineModel->rowCount() - 2);
+}
+
 void MainWindow::OnUnhandledException(ExceptionContainer exc)
 {
 	QString sMsg = exc.CurrentException().Msg();
 	QMessageBox::warning(this, "Unhandled Exception", sMsg);
+}
+
+void MainWindow::OnAddStep()
+{
+	QAction* pAction = dynamic_cast<QAction*>(sender());
+	Q_ASSERT(pAction);
+	QString sOperationName = pAction->text();
+	m_doc.pipeline += PipelineFactory::CreateStep(sOperationName);
+	PipelineChanged();
 }
 
 
@@ -53,6 +92,11 @@ void MainWindow::OnUnhandledException(ExceptionContainer exc)
 void MainWindow::SetPipeline(const Pipeline& pipeline)
 {
 	m_doc.pipeline = pipeline;
+	PipelineChanged();
+}
+
+void MainWindow::PipelineChanged()
+{
 	m_pPipelineModel->SetPipeline(&m_doc.pipeline);
 	BuildParamWidgets();
 
@@ -60,6 +104,8 @@ void MainWindow::SetPipeline(const Pipeline& pipeline)
 		setWindowTitle(m_sWindowTitle);
 	else
 		setWindowTitle(m_sWindowTitle + " - " + m_doc.sFilepath);
+
+	UpdateControls();
 }
 
 void MainWindow::BuildParamWidgets()
@@ -69,12 +115,9 @@ void MainWindow::BuildParamWidgets()
 	ui.paramsLayout->removeItem(ui.paramsSpacer);
 
 	// Remove any existing child widgets
-	for (QObject* pObj : ui.paramsLayout->children())
-	{
-		QWidget* pW = dynamic_cast<QWidget*>(pObj);
-		if (pW)
-			delete pW;
-	}
+	for (QWidget* p : m_listSliders)
+		delete p;
+	m_listSliders.clear();
 
 	// Iterate through all parameters in all steps.
 	for (int iStep = 0; iStep < m_doc.pipeline.count(); ++iStep)
@@ -96,6 +139,7 @@ void MainWindow::BuildParamWidgets()
 				pW->Init(sParamFullName, psParam, sCookie);
 				VERIFY(connect(pW, &ParamWidgetInt::ParamChanged, this, &MainWindow::OnParamChanged));
 				ui.paramsLayout->addWidget(pW);
+				m_listSliders += pW;
 			}
 			else
 			{
@@ -103,6 +147,7 @@ void MainWindow::BuildParamWidgets()
 				pW->Init(sParamFullName, psParam, sCookie);
 				VERIFY(connect(pW, &ParamWidgetFloat::ParamChanged, this, &MainWindow::OnParamChanged));
 				ui.paramsLayout->addWidget(pW);
+				m_listSliders += pW;
 			}
 		}
 	}
@@ -218,6 +263,66 @@ void MainWindow::on_actionNew_triggered()
 	m_doc.bDirty = true;
 	m_doc.sFilepath.clear();
 	SetPipeline(pipeline);
+}
+
+
+
+void MainWindow::on_pbRemoveStep_clicked()
+{
+	QModelIndexList mil = ui.viewSteps->selectionModel()->selectedIndexes();
+	Q_ASSERT(!mil.isEmpty());
+
+	// Get row list
+	QList<int> listIndexes;
+	for (QModelIndex mi : mil)
+		listIndexes += mi.row();
+	std::sort(listIndexes.begin(), listIndexes.end());
+
+	// Remove from the end
+	while (!listIndexes.isEmpty())
+	{
+		int iIdx = listIndexes.last();
+		m_doc.pipeline.removeAt(iIdx);
+		listIndexes.removeLast();
+	}
+
+	PipelineChanged();
+
+	// Restore the selection
+	if (mil.count() == 1)
+		ui.viewSteps->selectionModel()->select(mil.first(), QItemSelectionModel::SelectCurrent);
+}
+
+void MainWindow::on_pbMoveStepUp_clicked()
+{
+	QModelIndexList mil = ui.viewSteps->selectionModel()->selectedIndexes();
+	Q_ASSERT(1 == mil.count());
+	int iRow = mil.first().row();
+	int iNewRow = iRow - 1;
+	Q_ASSERT(iRow > 0);
+	PipelineStep ps = m_doc.pipeline.takeAt(iRow);
+	m_doc.pipeline.insert(iNewRow, ps);
+	PipelineChanged();
+
+	// Keep the same item selected
+	QModelIndex miNewSel = m_pPipelineModel->index(iNewRow, mil.first().column());
+	ui.viewSteps->selectionModel()->select(miNewSel, QItemSelectionModel::SelectCurrent);
+}
+
+void MainWindow::on_pbMoveStepDown_clicked()
+{
+	QModelIndexList mil = ui.viewSteps->selectionModel()->selectedIndexes();
+	Q_ASSERT(!mil.isEmpty());
+	int iRow = mil.first().row();
+	int iNewRow = iRow + 1;
+	Q_ASSERT(iRow < m_pPipelineModel->rowCount()-2);
+	PipelineStep ps = m_doc.pipeline.takeAt(iRow);
+	m_doc.pipeline.insert(iNewRow, ps);
+	PipelineChanged();
+
+	// Keep the same item selected
+	QModelIndex miNewSel = m_pPipelineModel->index(iNewRow, mil.first().column());
+	ui.viewSteps->selectionModel()->select(miNewSel, QItemSelectionModel::SelectCurrent);
 }
 
 void MainWindow::on_actionOpen_triggered()
