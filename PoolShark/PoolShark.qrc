@@ -1,4 +1,8 @@
 <RCC>
-    <qresource prefix="MainWindow">
+    <qresource prefix="/res">
+        <file alias="ArrowDown">Resources/IconArrowDown.png</file>
+        <file alias="ArrowUp">Resources/IconArrowUp.png</file>
+        <file alias="Plus">Resources/Plus.png</file>
+        <file alias="RedX">Resources/RedX.png</file>
     </qresource>
 </RCC>
