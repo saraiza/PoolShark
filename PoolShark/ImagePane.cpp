@@ -44,27 +44,27 @@ void ImagePane::Refresh()
     double dScale;
     int iCropWidth, iCropHeight;
 
-    if ((fAspectImg > fAspectPane) && (m_originalImage.rows > iPaneHeight))
+    if (fAspectImg > fAspectPane)
     {
-        // Image is higher than pane, no cropping for the width (just scaling)
-        dScale = (double)iPaneWidth / (double)m_originalImage.cols;
+        // Image aspect is taller than pane aspect so height needs to be cropped to match the aspect ratio of the pane
         iCropWidth = m_originalImage.cols;
-        iCropHeight = iPaneHeight * fAspectPane;
+        iCropHeight = m_originalImage.cols * fAspectPane;
     }
     else
     {
-        // Image is narrower than pane, no cropping for the height (just scaling)
-        dScale = (double)iPaneHeight / (double)m_originalImage.rows;
+        // Image is narrower and width needs to be cropped to match the aspect ratio of the pane
+        iCropWidth = m_originalImage.rows / fAspectPane;
         iCropHeight = m_originalImage.rows;
-        iCropWidth = iCropHeight * fAspectPane;
     }
+
+    dScale = (double)iPaneWidth / (double)iCropWidth;
 
     // Crop the image to the aspect ratio
     int iMarginLeft = (m_originalImage.cols - iCropWidth) / 2;
     int iMarginTop = (m_originalImage.rows - iCropHeight) / 2;
     cv::Mat imgCropped(m_originalImage, 
-        cv::Range(iMarginTop, m_originalImage.rows - iMarginTop * 2),
-        cv::Range(iMarginLeft, m_originalImage.cols - iMarginLeft * 2));
+        cv::Range(iMarginTop, iMarginTop + iCropHeight),
+        cv::Range(iMarginLeft, iMarginLeft + iCropWidth));
 
     // Now scale it
     cv::Size dsize(iPaneWidth, iPaneHeight);
