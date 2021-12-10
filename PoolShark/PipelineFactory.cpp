@@ -4,7 +4,7 @@
 #include <opencv2/imgcodecs/imgcodecs.hpp>     // cv::imread()
 #include <opencv2/imgproc/imgproc.hpp>     // cv::Canny()
 #include <opencv2/highgui.hpp>
-
+//#include <opencv2/gpu/gpu.hpp>
 
 using namespace cv;
 
@@ -55,6 +55,22 @@ void PipelineFactory::Init()
 				iKernel = 0;
 
 			cv::GaussianBlur(img, imgOut, Size(iKernel, iKernel), 0.0);
+			return imgOut;
+			});
+	}
+
+	{
+		QList<PipelineStepParam> listParams;
+		listParams += PipelineStepParam("Thresh1", 100.0, 0.0, 255.0);
+		listParams += PipelineStepParam("Thresh2", 175.0, 0.0, 255.0);
+		listParams += PipelineStepParam("Aperture", 3, 0, 100);
+		Define("Canny", listParams, [](const cv::Mat& img, const QList<PipelineStepParam>& listParams) {
+			double dThresh1 = listParams.at(0).Value().toInt();
+			double dThresh2 = listParams.at(1).Value().toInt();
+			int iApertureSize = listParams.at(2).Value().toInt();
+
+			cv::Mat imgOut;
+			cv::Canny(img, imgOut, dThresh1, dThresh2, iApertureSize);
 			return imgOut;
 			});
 	}

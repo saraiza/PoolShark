@@ -6,6 +6,10 @@
 #include <opencv2/highgui.hpp>
 #include<opencv2/opencv.hpp>
 
+
+
+DECLARE_LOG_SRC("ImagePane", LOGCAT_Common);
+
 ImagePane::ImagePane(QWidget *parent)
 	: QWidget(parent)
 {
@@ -16,10 +20,16 @@ ImagePane::ImagePane(QWidget *parent)
 
 QImage ImagePane::Mat2QImage(const cv::Mat& mat)
 {
+    int iBytesPerPixel = mat.elemSize();
     cv::Size sz = mat.size();
+    int iBytesPerLine = sz.width * iBytesPerPixel;
     const uchar* pData = mat.ptr();
-    int iBytesPerLine = sz.width * 3;
-    QImage qimg(pData, sz.width, sz.height, iBytesPerLine, QImage::Format::Format_BGR888);
+    
+    // Figure out the right type. RGB or grayscale.
+    QImage::Format fmt = (3 == iBytesPerPixel) ? QImage::Format::Format_BGR888 : QImage::Format::Format_Grayscale8;
+
+    // Build the image
+    QImage qimg(pData, sz.width, sz.height, iBytesPerLine, fmt);
     return qimg;
 }
 

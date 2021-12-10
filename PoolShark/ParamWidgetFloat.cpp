@@ -15,31 +15,32 @@ ParamWidgetFloat::ParamWidgetFloat(QWidget *parent)
 
 void ParamWidgetFloat::Init(const QString& sName, const PipelineStepParam& psp, QVariant vCookie)
 {
+	double dValue = psp.Value().toDouble();
+	double dMin = psp.MinValue().toDouble();
+	double dMax = psp.MaxValue().toDouble();
+
 	m_vCookie = vCookie;
 	ui.label->setText(sName);
-	ui.dsb->setRange(psp.MinValue().toFloat(), psp.MaxValue().toFloat());
-	ui.dsb->setValue(psp.Value().toFloat());
-
-	float fMin = psp.MinValue().toFloat();
-	float fMax = psp.MaxValue().toFloat();
-	float fRange = fMax - fMin;
+	ui.dsb->setRange(dMin, dMax);
+	ui.dsb->setValue(dValue);
 
 	// Divide the range up for 32 bit
-	m_tx.fMin = fMin;
-	m_tx.fMax = fMax;
+	m_tx.dMin = dMin;
+	m_tx.dMax = dMax;
+
 	ui.slider->setRange(0, SLIDER_DIVISIONS);
-	ui.slider->setValue(ValueToSlider(psp.Value().toFloat()));
+	ui.slider->setValue(ValueToSlider(dValue));
 }
 
-float ParamWidgetFloat::SliderToValue(int iSlider)
+double ParamWidgetFloat::SliderToValue(int iSlider)
 {
 	double dFactor = (double)iSlider / SLIDER_DIVISIONS;
-	return m_tx.fMin + dFactor * (m_tx.fMax - m_tx.fMin);
+	return m_tx.dMin + dFactor * (m_tx.dMax - m_tx.dMin);
 }
 
-int ParamWidgetFloat::ValueToSlider(float fValue)
+int ParamWidgetFloat::ValueToSlider(double dValue)
 {
-	double dFactor = (fValue - m_tx.fMin) / (m_tx.fMax - m_tx.fMin);
+	double dFactor = (dValue - m_tx.dMin) / (m_tx.dMax - m_tx.dMin);
 	int iSlider = dFactor * SLIDER_DIVISIONS;
 	return iSlider;
 }
@@ -50,9 +51,9 @@ void ParamWidgetFloat::on_slider_valueChanged(int value)
 		return;
 	BoolSet bs(&m_bChanging, true);
 
-	float fNewValue = SliderToValue(value);
-	ui.dsb->setValue(fNewValue);
-	emit ParamChanged(m_vCookie, QVariant(fNewValue));
+	double dNewValue = SliderToValue(value);
+	ui.dsb->setValue(dNewValue);
+	emit ParamChanged(m_vCookie, QVariant(dNewValue));
 }
 
 
@@ -62,7 +63,6 @@ void ParamWidgetFloat::on_dsb_valueChanged(double value)
 		BoolSet bs(&m_bChanging, true);
 
 	int iSlider = ValueToSlider(value);
-	float fNewValue = (float)value;
-	emit ParamChanged(m_vCookie, QVariant(fNewValue));
+	emit ParamChanged(m_vCookie, QVariant(value));
 	ui.slider->setValue(iSlider);
 }

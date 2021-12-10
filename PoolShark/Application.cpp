@@ -2,6 +2,7 @@
 #include "Application.h"
 
 
+DECLARE_LOG_SRC("Application", LOGCAT_Common);
 
 Application::Application(int& argc, char** argv)
 	: QApplication(argc, argv)
@@ -24,7 +25,7 @@ bool Application::notify(QObject* rec, QEvent* ev)
 	}
 	catch (...)
 	{
-		qDebug() << "Unknown Exception: Terminating!";
+		LOGERR("Unknown Exception: Terminating!");
 
 		std::terminate();
 	}

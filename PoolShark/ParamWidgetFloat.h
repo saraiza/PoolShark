@@ -26,9 +26,9 @@ private:
 	bool m_bChanging = false;
 	
 	struct {
-		float fMin = 0.0f;
-		float fMax = 0.0f;
+		double dMin = 0.0f;
+		double dMax = 0.0f;
 	} m_tx;
-	float SliderToValue(int iSlider);
-	int ValueToSlider(float fValue);
+	double SliderToValue(int iSlider);
+	int ValueToSlider(double dValue);
 };

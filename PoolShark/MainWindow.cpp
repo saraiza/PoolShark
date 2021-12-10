@@ -106,6 +106,7 @@ void MainWindow::PipelineChanged()
 		setWindowTitle(m_sWindowTitle + " - " + m_doc.sFilepath);
 
 	UpdateControls();
+	ProcessPipeline();
 }
 
 void MainWindow::BuildParamWidgets()
@@ -127,7 +128,6 @@ void MainWindow::BuildParamWidgets()
 		for (int iParam = 0; iParam < ps.Params().count(); ++iParam)
 		{
 			const PipelineStepParam& psParam = ps.Params().at(iParam);
-			QMetaType::fromType<float>();
 			int iType = psParam.Value().type();
 			bool bIntType = ((int)QMetaType::Int == iType);
 
