@@ -15,6 +15,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = Q_NULLPTR);
+    ~MainWindow();
 
 public slots:
     void OnUnhandledException(ExceptionContainer exc);
@@ -60,4 +61,8 @@ private:
     QList<ImagesWindow*> m_listImageWindows;
     void CreateImageWindows();
     void ProcessPipeline();
+
+    void SaveConfig();
+    void LoadConfig();
+    QString ConfigFilename();
 };

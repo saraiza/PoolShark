@@ -5,11 +5,16 @@
 #include <QMessageBox>
 #include "ParamWidgetFloat.h"
 #include "ParamWidgetInt.h"
+#include <QStandardPaths>
+#include "AppConfig.h"
 
 #include <opencv2/imgcodecs/imgcodecs.hpp>     // cv::imread()
+#include <opencv2/core/cuda.hpp>
 
 
 DECLARE_LOG_SRC("MainWindow", LOGCAT_Common);
+
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -42,7 +47,33 @@ MainWindow::MainWindow(QWidget *parent)
 	ui.pbAddStep->setMenu(pAddStepMenu);
 	VERIFY(connect(ui.viewSteps->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &MainWindow::OnViewSteps_currentRowChanged));
 
+	LoadConfig();
+
 	UpdateControls();
+}
+
+MainWindow::~MainWindow()
+{
+	SaveConfig();
+}
+
+void MainWindow::SaveConfig()
+{
+	QString sConfigFilename = ConfigFilename();
+	QFileInfo fi(sConfigFilename);
+	QDir dir = fi.dir();
+	dir.mkpath(dir.absolutePath());
+	AppConfig config(this);
+	config.toFile(sConfigFilename, SerMig::Option::OPT_Text);
+}
+
+void MainWindow::LoadConfig()
+{
+	QString sConfigFilename = ConfigFilename();
+	if (!QFileInfo::exists(sConfigFilename))
+		return;
+	AppConfig config(this);
+	config.fromFile(sConfigFilename);
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
@@ -54,6 +85,15 @@ void MainWindow::closeEvent(QCloseEvent* event)
 	}
 
 	m_listImageWindows.clear();
+}
+
+
+QString MainWindow::ConfigFilename()
+{
+	QString sDir = QStandardPaths::writableLocation(QStandardPaths::StandardLocation::AppConfigLocation);
+	QDir dir(sDir);
+	QString sFilename = dir.absoluteFilePath("PoolShark.sert");
+	return sFilename;
 }
 
 void MainWindow::OnViewSteps_currentRowChanged(const QModelIndex& current, const QModelIndex& previous)
