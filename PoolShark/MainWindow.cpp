@@ -6,7 +6,6 @@
 #include "ParamWidgetFloat.h"
 #include "ParamWidgetInt.h"
 #include <QStandardPaths>
-#include "AppConfig.h"
 
 #include <opencv2/imgcodecs/imgcodecs.hpp>     // cv::imread()
 #include <opencv2/core/cuda.hpp>
@@ -54,7 +53,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-	SaveConfig();
 }
 
 void MainWindow::SaveConfig()
@@ -63,8 +61,7 @@ void MainWindow::SaveConfig()
 	QFileInfo fi(sConfigFilename);
 	QDir dir = fi.dir();
 	dir.mkpath(dir.absolutePath());
-	AppConfig config(this);
-	config.toFile(sConfigFilename, SerMig::Option::OPT_Text);
+	this->toFile(sConfigFilename, SerMig::Option::OPT_Text);
 }
 
 void MainWindow::LoadConfig()
@@ -72,12 +69,22 @@ void MainWindow::LoadConfig()
 	QString sConfigFilename = ConfigFilename();
 	if (!QFileInfo::exists(sConfigFilename))
 		return;
-	AppConfig config(this);
-	config.fromFile(sConfigFilename);
+
+	try
+	{
+		this->fromFile(sConfigFilename);
+	}
+	catch (const Exception&)
+	{
+		LOGERR("Could not load config");
+	}
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
+	// Must save before we delete image windows
+	SaveConfig();
+
 	for (ImagesWindow* pImgWnd : m_listImageWindows)
 	{
 		if (pImgWnd)
@@ -106,7 +113,7 @@ void MainWindow::UpdateControls()
 	QModelIndexList mil = ui.viewSteps->selectionModel()->selectedIndexes();
 	int iStepSelectionCount = mil.count();
 	int iSelRow = ui.viewSteps->selectionModel()->currentIndex().row();
-	LOGINFO("iSelCount=%d iSelRow=%d", iStepSelectionCount, iSelRow);
+	//LOGINFO("iSelCount=%d iSelRow=%d", iStepSelectionCount, iSelRow);
 	ui.pbRemoveStep->setEnabled(iStepSelectionCount > 0);
 	ui.pbMoveStepUp->setEnabled(iStepSelectionCount == 1 && iSelRow > 0);
 	ui.pbMoveStepDown->setEnabled(iStepSelectionCount == 1 && iSelRow <= m_pPipelineModel->rowCount() - 2);
@@ -235,8 +242,12 @@ void MainWindow::on_pbSelectInputs_clicked()
 	QStringList sl = QFileDialog::getOpenFileNames(this, "Select Input Images", sDir, sFilter);
 	if (sl.isEmpty())
 		return;
+	SetInputFiles(sl);
+}
 
-	m_slInputFiles = sl;
+void MainWindow::SetInputFiles(QStringList slFiles)
+{
+	m_slInputFiles = slFiles;
 	m_pInputsModel->setStringList(m_slInputFiles);
 
 	// Load all the images
@@ -255,23 +266,18 @@ void MainWindow::CreateImageWindows()
 	// We might need to grow or shrink the number of windows
 	int iImageCount = m_listInputImages.count();
 
-	while(iImageCount < m_listImageWindows.count())
-	{
-		// Prune old windows
-	}
-
 	m_listImageWindows.resize(iImageCount);
 	
 	// Initialize empty slots
 	for (int i = 0; i < iImageCount; ++i)
 	{
-		if (nullptr == m_listImageWindows[i])
-		{
-			ImagesWindow* pWnd = new ImagesWindow(m_slInputFiles.at(i), nullptr);
-			m_listImageWindows[i] = pWnd;
-			pWnd->show();
-			VERIFY(connect(pWnd, &ImagesWindow::Closing, this, &MainWindow::OnImagesWindowClosing));
-		}
+		if (nullptr != m_listImageWindows[i])
+			continue;	// Skip it, it already exists
+		
+		ImagesWindow* pWnd = new ImagesWindow(m_slInputFiles.at(i), nullptr);
+		m_listImageWindows[i] = pWnd;
+		pWnd->show();
+		VERIFY(connect(pWnd, &ImagesWindow::Closing, this, &MainWindow::OnImagesWindowClosing));		
 	}
 }
 
@@ -403,4 +409,83 @@ void MainWindow::on_actionSaveAs_triggered()
 	m_doc.sFilepath = sFilepath;
 	m_doc.bDirty = false;
 	setWindowTitle(m_sWindowTitle + " - " + m_doc.sFilepath);
+}
+
+
+
+BEGIN_SERMIG_MAP(MainWindow, 1, "MainWindow")
+	SERMIG_MAP_ENTRY(1)
+END_SERMIG_MAP
+
+
+void MainWindow::SerializeGeometry(Archive& ar, QWidget* pW)
+{
+	if (ar.isStoring())
+	{
+		Qt::WindowStates ws = windowState();
+		ar << (int)ws;
+		if (Qt::WindowMaximized != ws)
+			ar << saveGeometry();	// I don't get it, will have to clean this up.
+		else
+		{
+			// Maximized, handle it differently. What screen are we on?
+			ar << geometry();
+		}
+
+		return;
+	}
+
+	Q_ASSERT(ar.isLoading());
+	Qt::WindowStates ws = ar.ReadEnum<Qt::WindowStates>();
+
+	if (Qt::WindowMaximized != ws)
+		restoreGeometry(ar.ReadByteArray());
+	else
+	{
+		QRect rc;
+		ar >> rc;
+		setGeometry(rc);
+		showMaximized();
+	}
+}
+
+
+void MainWindow::SerializeV1(Archive& ar)
+{
+	if (ar.isStoring())
+	{
+		SerializeGeometry(ar, this);
+
+		ar << m_slInputFiles;
+		for (ImagesWindow* pWnd : m_listImageWindows)
+		{
+			bool bHasWnd = (bool)(pWnd != nullptr);
+			ar << bHasWnd;
+			if (pWnd)
+				SerializeGeometry(ar, pWnd);
+		}
+
+		return;
+	}
+
+	Q_ASSERT(ar.isLoading());
+	SerializeGeometry(ar, this);
+
+	ar >> m_slInputFiles;
+	SetInputFiles(m_slInputFiles);
+
+	// The image window list should match the input files now
+	for(int i = 0; i < m_listImageWindows.count(); ++i)
+	{
+		ImagesWindow* pWnd = m_listImageWindows[i];
+		Q_ASSERT(pWnd);
+		bool bHasWnd = ar.ReadBool();
+		if (bHasWnd)
+			SerializeGeometry(ar, pWnd);
+		else
+		{
+			delete pWnd;
+			m_listImageWindows[i] = nullptr;
+		}
+	}
 }

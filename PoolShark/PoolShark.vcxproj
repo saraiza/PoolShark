@@ -56,16 +56,18 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <CustomBuildAfterTargets>Link</CustomBuildAfterTargets>
+    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <CustomBuildAfterTargets>Link</CustomBuildAfterTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus /Zc:referenceBinding %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>%OpenCV_DIR%\include;..\Common\bell;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>%OpenCV_DIR%\x64\vc16\lib;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -88,7 +90,7 @@ time /t &gt; $(OutDir)opencvbins.trg</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zc:__cplusplus /Zc:referenceBinding %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>%OpenCV_DIR%\include;..\Common\bell;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -115,8 +117,8 @@ time /t &gt; $(OutDir)opencvbins.trg</Command>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <UsePrecompiledHeader>Use</UsePrecompiledHeader>
@@ -154,7 +156,6 @@ time /t &gt; $(OutDir)opencvbins.trg</Command>
     <QtUic Include="ImagesWindow.ui" />
     <QtUic Include="MainWindow.ui" />
     <QtMoc Include="MainWindow.h" />
-    <ClCompile Include="AppConfig.cpp" />
     <ClCompile Include="Application.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
@@ -180,7 +181,6 @@ time /t &gt; $(OutDir)opencvbins.trg</Command>
     <QtMoc Include="ParamWidgetFloat.h" />
     <QtMoc Include="ImagesWindow.h" />
     <QtMoc Include="ImagePane.h" />
-    <ClInclude Include="AppConfig.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="PipelineFactory.h" />
     <QtMoc Include="PipelineTableModel.h" />

@@ -6,14 +6,16 @@
 #include "Pipeline.h"
 #include "PipelineTableModel.h"
 #include "ImagesWindow.h"
+#include <SerMig.h>
 
 
 
-class MainWindow : public QMainWindow
+
+class MainWindow : public QMainWindow, public SerMig
 {
     Q_OBJECT
-
 public:
+    DECLARE_SERMIG;
     MainWindow(QWidget *parent = Q_NULLPTR);
     ~MainWindow();
 
@@ -56,6 +58,7 @@ private:
 
     QStringListModel* m_pInputsModel;
     QStringList m_slInputFiles;
+    void SetInputFiles(QStringList slFiles);
     QList<cv::Mat> m_listInputImages;
 
     QList<ImagesWindow*> m_listImageWindows;
@@ -65,4 +68,7 @@ private:
     void SaveConfig();
     void LoadConfig();
     QString ConfigFilename();
+
+    void SerializeGeometry(Archive& ar, QWidget* pW);
+    void SerializeV1(Archive& ar);
 };
