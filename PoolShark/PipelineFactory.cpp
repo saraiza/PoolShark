@@ -63,11 +63,21 @@ void PipelineFactory::Init()
 		QList<PipelineStepParam> listParams;
 		listParams += PipelineStepParam("Thresh1", 100.0, 0.0, 255.0);
 		listParams += PipelineStepParam("Thresh2", 175.0, 0.0, 255.0);
-		listParams += PipelineStepParam("Aperture", 3, 0, 100);
+		listParams += PipelineStepParam("Aperture", 3, 3, 11);
 		Define("Canny", listParams, [](const cv::Mat& img, const QList<PipelineStepParam>& listParams) {
 			double dThresh1 = listParams.at(0).Value().toInt();
 			double dThresh2 = listParams.at(1).Value().toInt();
 			int iApertureSize = listParams.at(2).Value().toInt();
+			if (0 == iApertureSize % 2)
+			{
+				LOGINFO("Even aperture size for Canny filter must be odd, bumping up one");
+				++iApertureSize;
+			}
+			if (dThresh1 > dThresh2)
+			{
+				LOGINFO("Canny dThresh1 > dThresh2, clamping");
+				dThresh1 = dThresh2;
+			}
 
 			cv::Mat imgOut;
 			cv::Canny(img, imgOut, dThresh1, dThresh2, iApertureSize);
