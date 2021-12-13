@@ -98,12 +98,16 @@ void PipelineFactory::Init()
 			vector<cv::Vec4i> hierarchy;
 			int iMode = cv::RetrievalModes::RETR_EXTERNAL;
 			int iMethod = cv::ContourApproximationModes::CHAIN_APPROX_SIMPLE;
+			cv::UMat umIn = img.getUMat(cv::ACCESS_READ);
 			cv::UMat uOut;
-			cv::findContours(img, uOut, hierarchy, iMode, iMethod, cv::Point());
+
+			vector<vector<cv::Point>> contours;
+			cv::findContours(umIn, contours, iMode, iMethod);
 			
 			return img;
 			});
 	}
+
 
 	{
 		QList<PipelineStepParam> listParams;
@@ -112,16 +116,5 @@ void PipelineFactory::Init()
 			return img;
 			});
 	}
-
-	{
-		QList<PipelineStepParam> listParams;
-		listParams += PipelineStepParam("feet", 10, 0, 15);
-		listParams += PipelineStepParam("cat spice", 30.1f, 5.0f, 20.0f);
-		Define("Cat Feet", listParams, [](const cv::Mat& img, const QList<PipelineStepParam>& listParams) {
-			return img;
-			});
-	}
-
-
 }
 
