@@ -181,6 +181,7 @@ time /t &gt; $(OutDir)opencvbins.trg</Command>
     <QtMoc Include="ParamWidgetFloat.h" />
     <QtMoc Include="ImagesWindow.h" />
     <QtMoc Include="ImagePane.h" />
+    <ClInclude Include="Cursor.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="PipelineFactory.h" />
     <QtMoc Include="PipelineTableModel.h" />

@@ -35,6 +35,8 @@ private slots:
     void on_pbMoveStepDown_clicked();
     void OnAddStep();
     void OnViewSteps_currentRowChanged(const QModelIndex& current, const QModelIndex& previous);
+    void on_pbApply_clicked();
+    void on_cbAutoApply_clicked();
 
 protected:
     virtual void closeEvent(QCloseEvent* event) override;
@@ -44,6 +46,7 @@ private:
     void UpdateControls();
     QString m_sWindowTitle;
     PipelineTableModel* m_pPipelineModel = nullptr;
+    bool m_bParamsDirty = false;
 
     void SetPipeline(const Pipeline& pipeline);
     void PipelineChanged();

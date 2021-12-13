@@ -6,29 +6,29 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>510</width>
-    <height>517</height>
+    <width>476</width>
+    <height>469</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Pool Shark</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
     <property name="leftMargin">
-     <number>3</number>
+     <number>2</number>
     </property>
     <property name="topMargin">
-     <number>3</number>
+     <number>2</number>
     </property>
     <property name="rightMargin">
-     <number>3</number>
+     <number>2</number>
     </property>
     <property name="bottomMargin">
-     <number>3</number>
+     <number>2</number>
     </property>
     <item>
-     <widget class="QSplitter" name="splitterV">
+     <widget class="QSplitter" name="splitter">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -304,50 +304,133 @@
         </layout>
        </widget>
       </widget>
-      <widget class="QFrame" name="wParams">
-       <property name="minimumSize">
-        <size>
-         <width>300</width>
-         <height>0</height>
-        </size>
+      <widget class="QGroupBox" name="gbParams">
+       <property name="title">
+        <string>Parameters</string>
        </property>
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <layout class="QVBoxLayout" name="paramsLayout">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
         <property name="spacing">
-         <number>1</number>
+         <number>3</number>
         </property>
         <property name="leftMargin">
-         <number>1</number>
+         <number>3</number>
         </property>
         <property name="topMargin">
-         <number>1</number>
+         <number>2</number>
         </property>
         <property name="rightMargin">
-         <number>1</number>
+         <number>3</number>
         </property>
         <property name="bottomMargin">
-         <number>1</number>
+         <number>3</number>
         </property>
         <item>
-         <widget class="ParamWidgetFloat" name="wFloatExample" native="true"/>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QCheckBox" name="cbAutoApply">
+            <property name="text">
+             <string>Auto Apply</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>8</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pbApply">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>55</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Apply</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>8</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
         </item>
         <item>
-         <widget class="ParamWidgetInt" name="wIntExample" native="true"/>
-        </item>
-        <item>
-         <spacer name="paramsSpacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
+         <widget class="QFrame" name="wParams">
+          <property name="minimumSize">
            <size>
-            <width>20</width>
-            <height>234</height>
+            <width>300</width>
+            <height>0</height>
            </size>
           </property>
-         </spacer>
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
+          <layout class="QVBoxLayout" name="paramsLayout">
+           <property name="spacing">
+            <number>1</number>
+           </property>
+           <property name="leftMargin">
+            <number>1</number>
+           </property>
+           <property name="topMargin">
+            <number>1</number>
+           </property>
+           <property name="rightMargin">
+            <number>1</number>
+           </property>
+           <property name="bottomMargin">
+            <number>1</number>
+           </property>
+           <item>
+            <widget class="ParamWidgetFloat" name="wFloatExample" native="true"/>
+           </item>
+           <item>
+            <widget class="ParamWidgetInt" name="wIntExample" native="true"/>
+           </item>
+           <item>
+            <spacer name="paramsSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>234</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -360,7 +443,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>510</width>
+     <width>476</width>
      <height>22</height>
     </rect>
    </property>

@@ -6,6 +6,7 @@
 #include "ParamWidgetFloat.h"
 #include "ParamWidgetInt.h"
 #include <QStandardPaths>
+#include "Cursor.h"
 
 #include <opencv2/imgcodecs/imgcodecs.hpp>     // cv::imread()
 #include <opencv2/core/cuda.hpp>
@@ -117,7 +118,10 @@ void MainWindow::UpdateControls()
 	ui.pbRemoveStep->setEnabled(iStepSelectionCount > 0);
 	ui.pbMoveStepUp->setEnabled(iStepSelectionCount == 1 && iSelRow > 0);
 	ui.pbMoveStepDown->setEnabled(iStepSelectionCount == 1 && iSelRow <= m_pPipelineModel->rowCount() - 2);
+	ui.pbApply->setEnabled(!ui.cbAutoApply->isChecked() && m_bParamsDirty);
 }
+
+
 
 void MainWindow::OnUnhandledException(ExceptionContainer exc)
 {
@@ -218,11 +222,18 @@ void MainWindow::OnParamChanged(QVariant vCookie, QVariant vNewValue)
 	// Go set the value
 	m_doc.pipeline[iStep].Params()[iParam].SetValue(vNewValue);
 
-	ProcessPipeline();
+	if(ui.cbAutoApply->isChecked())
+		ProcessPipeline();
+	else
+	{
+		m_bParamsDirty = true;
+		UpdateControls();
+	}
 }
 
 void MainWindow::ProcessPipeline()
 {
+	WaitCursor wc;
 	CreateImageWindows();
 
 	// Rerun the entire pipeline for each input image
@@ -232,7 +243,21 @@ void MainWindow::ProcessPipeline()
 		QList<cv::Mat> listImages = m_doc.pipeline.Process(m_listInputImages.at(i));
 		m_listImageWindows[i]->SetImages(listImages);
 	}
+
+	m_bParamsDirty = false;
+	UpdateControls();
 }
+
+void MainWindow::on_pbApply_clicked()
+{
+	ProcessPipeline();
+}
+
+void MainWindow::on_cbAutoApply_clicked()
+{
+	UpdateControls();
+}
+
 
 void MainWindow::on_pbSelectInputs_clicked()
 {
