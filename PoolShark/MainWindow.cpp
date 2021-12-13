@@ -538,6 +538,7 @@ void MainWindow::SerializeV1(Archive& ar)
 		}
 
 		ar << m_slRecentFiles;
+		ar << ui.cbAutoApply->isChecked();
 
 		return;
 	}
@@ -565,4 +566,6 @@ void MainWindow::SerializeV1(Archive& ar)
 
 	ar >> m_slRecentFiles;
 	BuildRecentFilesMenu();
+
+	ui.cbAutoApply->setChecked(ar.ReadBool());
 }
