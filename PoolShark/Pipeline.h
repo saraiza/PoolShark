@@ -36,6 +36,11 @@ private:
 SERMIG_ARCHIVERS(PipelineStepParam)
 
 
+struct PipelineData {
+	cv::UMat img;
+
+	std::vector<std::vector<cv::Point>> contours;
+};
 
 /**
 @brief OpenCV image processing step
@@ -47,12 +52,12 @@ class PipelineStep : public SerMig
 {
 public:
 	DECLARE_SERMIG;
-	using FuncOp = std::function<cv::UMat(const cv::UMat& input, const QList<PipelineStepParam>& listParams)>;
+	using FuncOp = std::function<PipelineData(const PipelineData& input, const QList<PipelineStepParam>& listParams)>;
 
 	PipelineStep();
 	PipelineStep(const QString& sName, const QList<PipelineStepParam>& listParams, FuncOp funcOp);
 	
-	cv::UMat Process(const cv::UMat& imgInput);
+	PipelineData Process(const PipelineData& input);
 	
 	QString Name() const;
 	QList<PipelineStepParam>& Params();
@@ -87,7 +92,8 @@ public:
 	QString Name() const;
 	void SetName(const QString& sName);
 
-	QList<cv::UMat> Process(const cv::UMat& imgInput);
+	QList<cv::UMat> Process(const cv::UMat& inputImg);
+	QList<cv::UMat> Process(const PipelineData& input);
 
 private:
 	QString m_sName;

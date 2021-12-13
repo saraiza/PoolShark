@@ -46,8 +46,8 @@ void PipelineFactory::Init()
 	{
 		QList<PipelineStepParam> listParams;
 		listParams += PipelineStepParam("Kernel", 5, 1, 100);
-		Define("GaussianBlur", listParams, [](const cv::UMat& img, const QList<PipelineStepParam>& listParams) {
-			cv::UMat imgOut;
+		Define("GaussianBlur", listParams, [](const PipelineData& input, const QList<PipelineStepParam>& listParams) {
+			PipelineData out;
 			int iKernel = listParams.at(0).Value().toInt();
 
 			// The kernel must be odd or zero
@@ -56,8 +56,8 @@ void PipelineFactory::Init()
 			else if (iKernel < 0)
 				iKernel = 0;
 
-			cv::GaussianBlur(img, imgOut, cv::Size(iKernel, iKernel), 0.0);
-			return imgOut;
+			cv::GaussianBlur(input.img, out.img, cv::Size(iKernel, iKernel), 0.0);
+			return out;
 			});
 	}
 
@@ -66,7 +66,7 @@ void PipelineFactory::Init()
 		listParams += PipelineStepParam("Thresh1", 100.0, 0.0, 255.0);
 		listParams += PipelineStepParam("Thresh2", 175.0, 0.0, 255.0);
 		listParams += PipelineStepParam("Aperture", 3, 3, 11);
-		Define("Canny", listParams, [](const cv::UMat& img, const QList<PipelineStepParam>& listParams) {
+		Define("Canny", listParams, [](const PipelineData& input, const QList<PipelineStepParam>& listParams) {
 			double dThresh1 = listParams.at(0).Value().toInt();
 			double dThresh2 = listParams.at(1).Value().toInt();
 			int iApertureSize = listParams.at(2).Value().toInt();
@@ -81,29 +81,29 @@ void PipelineFactory::Init()
 				dThresh1 = dThresh2;
 			}
 
-			cv::UMat imgOut;
-			cv::Canny(img, imgOut, dThresh1, dThresh2, iApertureSize);
-			return imgOut;
+			PipelineData out;
+			cv::Canny(input.img, out.img, dThresh1, dThresh2, iApertureSize);
+			return out;
 			});
 	}
 
 
 	{
 		QList<PipelineStepParam> listParams;
-		Define("findContours", listParams, [](const cv::UMat& img, const QList<PipelineStepParam>& listParams) {
+		Define("findContours", listParams, [](const PipelineData& input, const QList<PipelineStepParam>& listParams) {
 			// The input image must be an 8 bit grayscale image
-			if (img.elemSize() != 1)
+			if (input.img.elemSize() != 1)
 				EXERR("RRTK", "findContours requires a grayscale input. Try using Canny() edge detection first.");
 
 			vector<cv::Vec4i> hierarchy;
 			int iMode = cv::RetrievalModes::RETR_EXTERNAL;
 			int iMethod = cv::ContourApproximationModes::CHAIN_APPROX_SIMPLE;
-			cv::UMat uOut;
+			PipelineData out = input;
 
 			vector<vector<cv::Point>> contours;
-			cv::findContours(img, contours, iMode, iMethod);
+			cv::findContours(input.img, out.contours, iMode, iMethod);
 			
-			return img;
+			return out;
 			});
 	}
 }
