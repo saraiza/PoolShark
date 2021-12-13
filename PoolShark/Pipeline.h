@@ -47,12 +47,12 @@ class PipelineStep : public SerMig
 {
 public:
 	DECLARE_SERMIG;
-	using FuncOp = std::function<cv::Mat(const cv::Mat& img, const QList<PipelineStepParam>& listParams)>;
+	using FuncOp = std::function<cv::UMat(const cv::UMat& input, const QList<PipelineStepParam>& listParams)>;
 
 	PipelineStep();
 	PipelineStep(const QString& sName, const QList<PipelineStepParam>& listParams, FuncOp funcOp);
 	
-	cv::Mat Process(const cv::Mat& imgInput);
+	cv::UMat Process(const cv::UMat& imgInput);
 	
 	QString Name() const;
 	QList<PipelineStepParam>& Params();
@@ -87,7 +87,7 @@ public:
 	QString Name() const;
 	void SetName(const QString& sName);
 
-	QList<cv::Mat> Process(const cv::Mat& img);
+	QList<cv::UMat> Process(const cv::UMat& imgInput);
 
 private:
 	QString m_sName;

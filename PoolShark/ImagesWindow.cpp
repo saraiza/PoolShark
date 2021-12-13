@@ -71,7 +71,7 @@ void ImagesWindow::RebuildPanes(int iCount)
 	}
 }
 
-void ImagesWindow::SetImages(const QList<cv::Mat>& listImages)
+void ImagesWindow::SetImages(const QList<cv::UMat>& listImages)
 {
 	if (listImages.count() != m_listPanes.count())
 		RebuildPanes(listImages.count());

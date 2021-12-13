@@ -13,7 +13,7 @@ public:
 	ImagesWindow(const QString& sTitle, QWidget *parent = Q_NULLPTR);
 	~ImagesWindow();
 
-	void SetImages(const QList<cv::Mat>& listImages);
+	void SetImages(const QList<cv::UMat>& listImages);
 
 signals:
 	void Closing();

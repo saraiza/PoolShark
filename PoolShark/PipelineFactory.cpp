@@ -46,8 +46,8 @@ void PipelineFactory::Init()
 	{
 		QList<PipelineStepParam> listParams;
 		listParams += PipelineStepParam("Kernel", 5, 1, 100);
-		Define("GaussianBlur", listParams, [](const cv::Mat& img, const QList<PipelineStepParam>& listParams) {
-			cv::Mat imgOut;
+		Define("GaussianBlur", listParams, [](const cv::UMat& img, const QList<PipelineStepParam>& listParams) {
+			cv::UMat imgOut;
 			int iKernel = listParams.at(0).Value().toInt();
 
 			// The kernel must be odd or zero
@@ -66,7 +66,7 @@ void PipelineFactory::Init()
 		listParams += PipelineStepParam("Thresh1", 100.0, 0.0, 255.0);
 		listParams += PipelineStepParam("Thresh2", 175.0, 0.0, 255.0);
 		listParams += PipelineStepParam("Aperture", 3, 3, 11);
-		Define("Canny", listParams, [](const cv::Mat& img, const QList<PipelineStepParam>& listParams) {
+		Define("Canny", listParams, [](const cv::UMat& img, const QList<PipelineStepParam>& listParams) {
 			double dThresh1 = listParams.at(0).Value().toInt();
 			double dThresh2 = listParams.at(1).Value().toInt();
 			int iApertureSize = listParams.at(2).Value().toInt();
@@ -81,7 +81,7 @@ void PipelineFactory::Init()
 				dThresh1 = dThresh2;
 			}
 
-			cv::Mat imgOut;
+			cv::UMat imgOut;
 			cv::Canny(img, imgOut, dThresh1, dThresh2, iApertureSize);
 			return imgOut;
 			});
@@ -90,7 +90,7 @@ void PipelineFactory::Init()
 
 	{
 		QList<PipelineStepParam> listParams;
-		Define("findContours", listParams, [](const cv::Mat& img, const QList<PipelineStepParam>& listParams) {
+		Define("findContours", listParams, [](const cv::UMat& img, const QList<PipelineStepParam>& listParams) {
 			// The input image must be an 8 bit grayscale image
 			if (img.elemSize() != 1)
 				EXERR("RRTK", "findContours requires a grayscale input. Try using Canny() edge detection first.");
@@ -98,21 +98,11 @@ void PipelineFactory::Init()
 			vector<cv::Vec4i> hierarchy;
 			int iMode = cv::RetrievalModes::RETR_EXTERNAL;
 			int iMethod = cv::ContourApproximationModes::CHAIN_APPROX_SIMPLE;
-			cv::UMat umIn = img.getUMat(cv::ACCESS_READ);
 			cv::UMat uOut;
 
 			vector<vector<cv::Point>> contours;
-			cv::findContours(umIn, contours, iMode, iMethod);
+			cv::findContours(img, contours, iMode, iMethod);
 			
-			return img;
-			});
-	}
-
-
-	{
-		QList<PipelineStepParam> listParams;
-		listParams += PipelineStepParam("age", 1, 0, 10);
-		Define("Doggy Spice", listParams, [](const cv::Mat& img, const QList<PipelineStepParam>& listParams) {
 			return img;
 			});
 	}

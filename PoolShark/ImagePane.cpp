@@ -72,7 +72,7 @@ void ImagePane::Refresh()
     // Crop the image to the aspect ratio
     int iMarginLeft = (m_originalImage.cols - iCropWidth) / 2;
     int iMarginTop = (m_originalImage.rows - iCropHeight) / 2;
-    cv::Mat imgCropped(m_originalImage, 
+    cv::UMat imgCropped(m_originalImage, 
         cv::Range(iMarginTop, iMarginTop + iCropHeight),
         cv::Range(iMarginLeft, iMarginLeft + iCropWidth));
 
@@ -94,7 +94,7 @@ void ImagePane::Init(const QString& sLabel)
 }
 
 
-void ImagePane::SetImage(const cv::Mat& matImg)
+void ImagePane::SetImage(const cv::UMat& matImg)
 {
     m_originalImage = matImg;
     Refresh();

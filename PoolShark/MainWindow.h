@@ -66,7 +66,7 @@ private:
     QStringListModel* m_pInputsModel;
     QStringList m_slInputFiles;
     void SetInputFiles(QStringList slFiles);
-    QList<cv::Mat> m_listInputImages;
+    QList<cv::UMat> m_listInputImages;
 
     QList<ImagesWindow*> m_listImageWindows;
     void CreateImageWindows();

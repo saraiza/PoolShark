@@ -17,7 +17,7 @@ public:
 	ImagePane(QWidget *parent = Q_NULLPTR);
 
 	void Init(const QString& sLabel);
-	void SetImage(const cv::Mat& img);
+	void SetImage(const cv::UMat& img);
 
 protected:
 	virtual void resizeEvent(QResizeEvent* event) override;
@@ -25,7 +25,7 @@ protected:
 private:
 	Ui::ImagePane ui;
 
-	cv::Mat m_originalImage;
+	cv::UMat m_originalImage;
 	void Refresh();	///< Redraw the image
 	QImage Mat2QImage(const cv::Mat& mat);
 };

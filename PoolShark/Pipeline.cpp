@@ -107,7 +107,7 @@ QList<PipelineStepParam>& PipelineStep::Params()
 	return m_listParams;
 }
 
-cv::Mat PipelineStep::Process(const cv::Mat& imgInput)
+cv::UMat PipelineStep::Process(const cv::UMat& imgInput)
 {
 	return m_funcOp(imgInput, m_listParams);
 }
@@ -210,13 +210,13 @@ void Pipeline::SetName(const QString& sName)
 
 
 
-QList<cv::Mat> Pipeline::Process(const cv::Mat& img)
+QList<cv::UMat> Pipeline::Process(const cv::UMat& img)
 {
 	// Collect all results in an array
-	QList<cv::Mat> listOuts;
+	QList<cv::UMat> listOuts;
 
 	// Process each step
-	cv::Mat imgCpy = img;
+	cv::UMat imgCpy = img;
 	for (int i = 0; i < count(); ++i)
 	{
 		imgCpy = (*this)[i].Process(imgCpy);

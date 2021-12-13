@@ -25,7 +25,6 @@ MainWindow::MainWindow(QWidget *parent)
 	m_pPipelineModel = new PipelineTableModel(this);
 	ui.viewSteps->setModel(m_pPipelineModel);
 
-
 	m_pInputsModel = new QStringListModel(this);
 	ui.viewInputs->setModel(m_pInputsModel);
 
@@ -275,7 +274,7 @@ void MainWindow::ProcessPipeline()
 	for (int i = 0; i < m_listInputImages.count(); ++i)
 	{
 		// Run the pipeline
-		QList<cv::Mat> listImages = m_doc.pipeline.Process(m_listInputImages.at(i));
+		QList<cv::UMat> listImages = m_doc.pipeline.Process(m_listInputImages.at(i));
 		m_listImageWindows[i]->SetImages(listImages);
 	}
 
@@ -315,7 +314,7 @@ void MainWindow::SetInputFiles(QStringList slFiles)
 	for (int i = 0; i < m_slInputFiles.count(); ++i)
 	{
 		cv::Mat img = cv::imread(qPrintable(m_slInputFiles.at(i)));
-		m_listInputImages += img;
+		m_listInputImages += img.getUMat(cv::ACCESS_READ);
 	}
 
 	ProcessPipeline();
