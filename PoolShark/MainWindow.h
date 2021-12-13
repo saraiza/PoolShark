@@ -37,16 +37,20 @@ private slots:
     void OnViewSteps_currentRowChanged(const QModelIndex& current, const QModelIndex& previous);
     void on_pbApply_clicked();
     void on_cbAutoApply_clicked();
+    void OnOpenRecentFile();
 
 protected:
     virtual void closeEvent(QCloseEvent* event) override;
 
 private:
     Ui::MainWindowClass ui;
+    void BuildRecentFilesMenu();
+    void OpenFile(const QString& sFilename);
     void UpdateControls();
     QString m_sWindowTitle;
     PipelineTableModel* m_pPipelineModel = nullptr;
     bool m_bParamsDirty = false;
+    QStringList m_slRecentFiles;
 
     void SetPipeline(const Pipeline& pipeline);
     void PipelineChanged();

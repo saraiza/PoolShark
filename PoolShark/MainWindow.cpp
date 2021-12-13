@@ -14,7 +14,7 @@
 
 DECLARE_LOG_SRC("MainWindow", LOGCAT_Common);
 
-
+#define MAX_RECENT_FILES		5
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -54,6 +54,41 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+}
+
+void MainWindow::BuildRecentFilesMenu()
+{
+	if (ui.actionRecentFiles->menu())
+		delete ui.actionRecentFiles->menu();
+
+	QMenu* pMenu = new QMenu(this);
+	for (QString sFilename : m_slRecentFiles)
+	{
+		QAction* pAction = pMenu->addAction(sFilename);
+		pAction->setData(sFilename);
+		VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnOpenRecentFile())));
+	}
+	ui.actionRecentFiles->setMenu(pMenu);
+
+}
+
+
+void MainWindow::OnOpenRecentFile()
+{
+	QAction* pAction = dynamic_cast<QAction*>(sender());
+	Q_ASSERT(pAction);
+	QString sFilename = pAction->data().toString();
+
+	if (!QFile::exists(sFilename))
+	{
+		int iIndex = m_slRecentFiles.indexOf(sFilename);
+		m_slRecentFiles.removeAt(iIndex);
+		LOGINFO("Removed recent file '%s'", qPrintable(sFilename));
+		BuildRecentFilesMenu();
+		return;
+	}
+
+	OpenFile(sFilename);
 }
 
 void MainWindow::SaveConfig()
@@ -403,9 +438,21 @@ void MainWindow::on_actionOpen_triggered()
 	if (sFilepath.isEmpty())
 		return;
 
-	Pipeline pipeline;
-	pipeline.fromFile(sFilepath);
+	OpenFile(sFilepath);
 	m_doc.sFilepath = sFilepath;
+
+	m_slRecentFiles += sFilepath;
+	if (m_slRecentFiles.count() > MAX_RECENT_FILES)
+		m_slRecentFiles.removeLast();
+	BuildRecentFilesMenu();
+}
+
+
+void MainWindow::OpenFile(const QString& sFilename)
+{
+	Pipeline pipeline;
+	pipeline.fromFile(sFilename);
+	m_doc.sFilepath = sFilename;
 	m_doc.bDirty = false;
 	SetPipeline(pipeline);
 }
@@ -491,6 +538,8 @@ void MainWindow::SerializeV1(Archive& ar)
 				SerializeGeometry(ar, pWnd);
 		}
 
+		ar << m_slRecentFiles;
+
 		return;
 	}
 
@@ -514,4 +563,7 @@ void MainWindow::SerializeV1(Archive& ar)
 			m_listImageWindows[i] = nullptr;
 		}
 	}
+
+	ar >> m_slRecentFiles;
+	BuildRecentFilesMenu();
 }
