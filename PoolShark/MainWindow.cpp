@@ -437,6 +437,7 @@ void MainWindow::SerializeGeometry(Archive& ar, QWidget* pW)
 
 	Q_ASSERT(ar.isLoading());
 	Qt::WindowStates ws = ar.ReadEnum<Qt::WindowStates>();
+	setWindowState(ws);
 
 	if (Qt::WindowMaximized != ws)
 		restoreGeometry(ar.ReadByteArray());

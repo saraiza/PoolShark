@@ -1,12 +1,14 @@
 #include "stdafx.h"
 #include "PipelineFactory.h"
+#include <Exception.h>
+#include <Logging.h>
 #include <opencv2/core/core.hpp>           // cv::Mat
 #include <opencv2/imgcodecs/imgcodecs.hpp>     // cv::imread()
 #include <opencv2/imgproc/imgproc.hpp>     // cv::Canny()
 #include <opencv2/highgui.hpp>
 //#include <opencv2/gpu/gpu.hpp>
 
-using namespace cv;
+using namespace std;
 
 PipelineFactory PipelineFactory::ms_instance;
 
@@ -54,7 +56,7 @@ void PipelineFactory::Init()
 			else if (iKernel < 0)
 				iKernel = 0;
 
-			cv::GaussianBlur(img, imgOut, Size(iKernel, iKernel), 0.0);
+			cv::GaussianBlur(img, imgOut, cv::Size(iKernel, iKernel), 0.0);
 			return imgOut;
 			});
 	}
@@ -82,6 +84,24 @@ void PipelineFactory::Init()
 			cv::Mat imgOut;
 			cv::Canny(img, imgOut, dThresh1, dThresh2, iApertureSize);
 			return imgOut;
+			});
+	}
+
+
+	{
+		QList<PipelineStepParam> listParams;
+		Define("findContours", listParams, [](const cv::Mat& img, const QList<PipelineStepParam>& listParams) {
+			// The input image must be an 8 bit grayscale image
+			if (img.elemSize() != 1)
+				EXERR("RRTK", "findContours requires a grayscale input. Try using Canny() edge detection first.");
+
+			vector<cv::Vec4i> hierarchy;
+			int iMode = cv::RetrievalModes::RETR_EXTERNAL;
+			int iMethod = cv::ContourApproximationModes::CHAIN_APPROX_SIMPLE;
+			cv::UMat uOut;
+			cv::findContours(img, uOut, hierarchy, iMode, iMethod, cv::Point());
+			
+			return img;
 			});
 	}
 
