@@ -88,6 +88,31 @@ void PipelineFactory::Init()
 			});
 	}
 
+	{
+		QList<PipelineStepParam> listParams;
+		listParams += PipelineStepParam("ksize", 1, 1, 11);
+		listParams += PipelineStepParam("scale", 1.0, 0.0, 5.0);
+		listParams += PipelineStepParam("delta", 0.0, 0.0, 255.0);
+		listParams += PipelineStepParam("borderType", QStringList() << "BORDER_CONSTANT=0" << "BORDER_REPLICATE=1" << "BORDER_REFLECT=2" << "BORDER_WRAP=3" << "BORDER_REFLECT_101 (Default) = 4" /*"BORDER_TRANSPARENT = 5"*/ <<  "BORDER_ISOLATED=16");
+		Define("Laplacian", listParams, [](const PipelineData& input, const QList<PipelineStepParam>& listParams) {
+			// The input image must be an 8 bit grayscale image
+			//if (input.img.elemSize() != 1)
+			//	EXERR("RRT1", "Laplacian requires a grayscale input. Try using Canny() edge detection first.");
+
+			int ksize = listParams.at(0).Value().toInt();
+			double scale = listParams.at(1).Value().toDouble();
+			double delta = listParams.at(2).Value().toDouble();
+			int borderType = listParams.at(3).Value().toInt();
+
+			// The kernel must be positive and odd
+			if (ksize % 2 == 0)
+				--ksize;
+
+			PipelineData out;
+			cv::Laplacian(input.img, out.img, CV_16S, ksize, scale, delta, borderType);
+			return out;
+			});
+	}
 
 	{
 		QList<PipelineStepParam> listParams;
@@ -96,7 +121,7 @@ void PipelineFactory::Init()
 		Define("findContours", listParams, [](const PipelineData& input, const QList<PipelineStepParam>& listParams) {
 			// The input image must be an 8 bit grayscale image
 			if (input.img.elemSize() != 1)
-				EXERR("RRTK", "findContours requires a grayscale input. Try using Canny() edge detection first.");
+				EXERR("RRT2", "findContours requires a grayscale input. Try using Canny() edge detection first.");
 
 			int iMode = listParams.at(0).Value().toInt();
 			int iMethod = listParams.at(1).Value().toInt();
@@ -114,26 +139,40 @@ void PipelineFactory::Init()
 	
 	{
 		QList<PipelineStepParam> listParams;
-		listParams += PipelineStepParam("ksize", 1, 1, 11);
-		listParams += PipelineStepParam("scale", 1.0, 0.0, 5.0);
-		listParams += PipelineStepParam("delta", 0.0, 0.0, 255.0);
-		listParams += PipelineStepParam("borderType", QStringList() << "BORDER_CONSTANT=0" << "BORDER_REPLICATE=1" << "BORDER_REFLECT=2" << "BORDER_WRAP=3" << "BORDER_REFLECT_101 (Default) = 4" /*"BORDER_TRANSPARENT = 5"*/ <<  "BORDER_ISOLATED=16");
-		Define("Laplacian", listParams, [](const PipelineData& input, const QList<PipelineStepParam>& listParams) {
+
+		listParams += PipelineStepParam("rho", 1.0, 1.0, 95.0);
+		listParams += PipelineStepParam("theta", 0.0, 2 * CV_PI, 2 * CV_PI);
+		listParams += PipelineStepParam("threshold", 50, 0, 255);
+		listParams += PipelineStepParam("srn", 0.0, 0.0, 500.0);
+		listParams += PipelineStepParam("stn", 0.0, 0.0, 500.0);
+		listParams += PipelineStepParam("min_theta", 0.0, 0.0, 500.0);
+		listParams += PipelineStepParam("max_theta", CV_PI, 0.01, CV_PI);
+		Define("HoughLines", listParams, [](const PipelineData& input, const QList<PipelineStepParam>& listParams) {
 			// The input image must be an 8 bit grayscale image
-			//if (input.img.elemSize() != 1)
-			//	EXERR("RRTK", "Laplacian requires a grayscale input. Try using Canny() edge detection first.");
+			if (input.img.elemSize() != 1)
+				EXERR("RRT3", "HoughLines requires a grayscale input. Try using Canny() edge detection first.");
 
-			int ksize = listParams.at(0).Value().toInt();
-			double scale = listParams.at(1).Value().toDouble();
-			double delta = listParams.at(2).Value().toDouble();
-			int borderType = listParams.at(3).Value().toInt();
-
-			// The kernel must be positive and odd
-			if (ksize % 2 == 0)
-				--ksize;
+			int i = 0;	// Param index
+			double 	rho = listParams.at(i++).Value().toDouble();
+			double 	theta = listParams.at(i++).Value().toDouble();
+			int 	threshold = listParams.at(i++).Value().toInt();
+			double 	srn = listParams.at(i++).Value().toDouble();
+			double 	stn = listParams.at(i++).Value().toDouble();
+			double 	min_theta = listParams.at(i++).Value().toDouble();
+			double 	max_theta = listParams.at(i++).Value().toDouble();
+			
+			if (min_theta > max_theta)
+				min_theta = max_theta - 0.01;
 
 			PipelineData out;
-			cv::Laplacian(input.img, out.img, CV_16S, ksize, scale, delta, borderType);
+			vector<cv::Vec4i> vectLinesP;
+			cv::HoughLines(input.img, vectLinesP, rho, theta, threshold, srn, stn, min_theta, max_theta);
+			//cv::HoughLines(input.img, out.contours, rho, theta, threshold, srn, stn, min_theta, max_theta);
+
+			// Draw the contours onto a blank image of the same size
+			out.img = cv::UMat::zeros(input.img.rows, input.img.cols, CV_8UC3);
+			cv::Scalar color(0, 0, 255);	// red
+			cv::drawContours(out.img, out.contours, -1, color);			
 			return out;
 			});
 	}
