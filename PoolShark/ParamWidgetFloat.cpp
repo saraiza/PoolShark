@@ -70,6 +70,10 @@ void ParamWidgetFloat::on_dsb_valueChanged(double value)
 	if (m_bChanging)
 		BoolSet bs(&m_bChanging, true);
 
+	// Enforce limits
+	value = qMax(value, m_tx.dMin);
+	value = qMin(value, m_tx.dMax);
+
 	int iSlider = ValueToSlider(value);
 	emit ParamChanged(m_vCookie, QVariant(value));
 	ui.slider->setValue(iSlider);
