@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include "ParamWidgetFloat.h"
 #include "ParamWidgetInt.h"
+#include "ParamWidgetEnum.h"
 #include <QStandardPaths>
 #include "Cursor.h"
 
@@ -212,33 +213,51 @@ void MainWindow::BuildParamWidgets()
 
 		for (int iParam = 0; iParam < ps.Params().count(); ++iParam)
 		{
-			const PipelineStepParam& psParam = ps.Params().at(iParam);
-			int iType = psParam.Value().type();
-			bool bIntType = ((int)QMetaType::Int == iType);
-
 			QString sCookie = QString("%1:%2").arg(iStep).arg(iParam);
-			QString sParamFullName = QString("%1:%2").arg(ps.Name(), psParam.Name());
-			if (bIntType)
-			{
-				ParamWidgetInt* pW = new ParamWidgetInt(this);
-				pW->Init(sParamFullName, psParam, sCookie);
-				VERIFY(connect(pW, &ParamWidgetInt::ParamChanged, this, &MainWindow::OnParamChanged));
-				ui.paramsLayout->addWidget(pW);
-				m_listSliders += pW;
-			}
-			else
-			{
-				ParamWidgetFloat* pW = new ParamWidgetFloat(this);
-				pW->Init(sParamFullName, psParam, sCookie);
-				VERIFY(connect(pW, &ParamWidgetFloat::ParamChanged, this, &MainWindow::OnParamChanged));
-				ui.paramsLayout->addWidget(pW);
-				m_listSliders += pW;
-			}
+			const PipelineStepParam& psParam = ps.Params().at(iParam);
+			QWidget* pW = CreateParamWidget(ps.Name(), psParam, sCookie);
+			ui.paramsLayout->addWidget(pW);
+			m_listSliders += pW;
 		}
 	}
 
 	// Re-add the spacer to the end
 	ui.paramsLayout->addItem(ui.paramsSpacer);
+}
+
+
+QWidget* MainWindow::CreateParamWidget(const QString& sStepName, const PipelineStepParam& psParam, const QVariant& vCookie)
+{
+	QString sParamFullName = QString("%1:%2").arg(sStepName, psParam.Name());
+
+	switch (psParam.Type())
+	{
+	case QVariant::Int:
+	{
+		ParamWidgetInt* pW = new ParamWidgetInt(sParamFullName, psParam, vCookie, this);
+		VERIFY(connect(pW, &ParamWidgetInt::ParamChanged, this, &MainWindow::OnParamChanged));
+		return pW;
+	}
+
+	case QVariant::Double:
+	{
+		ParamWidgetFloat* pW = new ParamWidgetFloat(sParamFullName, psParam, vCookie, this);
+		VERIFY(connect(pW, &ParamWidgetFloat::ParamChanged, this, &MainWindow::OnParamChanged));
+		return pW;
+	}
+
+	case QVariant::StringList:
+	{
+		ParamWidgetEnum* pW = new ParamWidgetEnum(sParamFullName, psParam, vCookie, this);
+		VERIFY(connect(pW, &ParamWidgetEnum::ParamChanged, this, &MainWindow::OnParamChanged));
+		return pW;
+	}
+
+	default:
+		Q_ASSERT(false);
+	}
+
+	return nullptr;
 }
 
 

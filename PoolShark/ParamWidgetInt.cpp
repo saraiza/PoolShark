@@ -2,15 +2,23 @@
 #include "ParamWidgetInt.h"
 #include <Util.h>
 
+
 ParamWidgetInt::ParamWidgetInt(QWidget *parent)
 	: QWidget(parent)
 {
 	ui.setupUi(this);
+	ui.label->setText("");
 }
 
-
-void ParamWidgetInt::Init(const QString& sName, const PipelineStepParam& psp, QVariant vCookie)
+ParamWidgetInt::ParamWidgetInt(
+		const QString& sName, 
+		const PipelineStepParam& psp, 
+		const QVariant& vCookie, 
+		QWidget *parent)
+	: QWidget(parent)
 {
+	ui.setupUi(this);
+
 	m_vCookie = vCookie;
 	ui.label->setText(sName);
 	ui.spinBox->setRange(psp.MinValue().toInt(), psp.MaxValue().toInt());
@@ -18,6 +26,8 @@ void ParamWidgetInt::Init(const QString& sName, const PipelineStepParam& psp, QV
 	ui.slider->setRange(psp.MinValue().toInt(), psp.MaxValue().toInt());
 	ui.slider->setValue(psp.Value().toInt());
 }
+
+
 
 
 void ParamWidgetInt::on_slider_valueChanged(int value)

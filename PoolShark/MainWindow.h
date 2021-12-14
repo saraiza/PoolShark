@@ -56,6 +56,7 @@ private:
     void SetPipelineDirty();
     void PipelineChanged();
     void BuildParamWidgets();
+    QWidget* CreateParamWidget(const QString& sStepName, const PipelineStepParam& psParam, const QVariant& vCookie);
     QList<QWidget*> m_listSliders;
 
     struct {

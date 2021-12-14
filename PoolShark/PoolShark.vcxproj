@@ -182,10 +182,12 @@ time /t &gt; $(OutDir)opencvbins.trg</Command>
     <QtMoc Include="ImagesWindow.h" />
     <QtMoc Include="ImagePane.h" />
     <ClInclude Include="Cursor.h" />
+    <QtMoc Include="ParamWidgetEnum.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="PipelineFactory.h" />
     <QtMoc Include="PipelineTableModel.h" />
     <ClInclude Include="stdafx.h" />
+    <ClCompile Include="ParamWidgetEnum.cpp" />
     <ClCompile Include="ParamWidgetFloat.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
@@ -210,6 +212,7 @@ time /t &gt; $(OutDir)opencvbins.trg</Command>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <QtUic Include="ParamWidgetEnum.ui" />
     <QtUic Include="ParamWidgetFloat.ui" />
     <QtUic Include="ParamWidgetInt.ui" />
   </ItemGroup>

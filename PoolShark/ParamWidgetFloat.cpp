@@ -12,9 +12,16 @@ ParamWidgetFloat::ParamWidgetFloat(QWidget *parent)
 	ui.label->setText("");
 }
 
-
-void ParamWidgetFloat::Init(const QString& sName, const PipelineStepParam& psp, QVariant vCookie)
+ParamWidgetFloat::ParamWidgetFloat(
+		const QString& sName, 
+		const PipelineStepParam& psp, 
+		const QVariant& vCookie, 
+		QWidget* parent)
+	: QWidget(parent)
 {
+	Q_ASSERT(QVariant::Double == psp.Type());
+	ui.setupUi(this);
+
 	double dValue = psp.Value().toDouble();
 	double dMin = psp.MinValue().toDouble();
 	double dMax = psp.MaxValue().toDouble();
@@ -31,6 +38,7 @@ void ParamWidgetFloat::Init(const QString& sName, const PipelineStepParam& psp, 
 	ui.slider->setRange(0, SLIDER_DIVISIONS);
 	ui.slider->setValue(ValueToSlider(dValue));
 }
+
 
 double ParamWidgetFloat::SliderToValue(int iSlider)
 {

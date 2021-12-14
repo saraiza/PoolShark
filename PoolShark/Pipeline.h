@@ -8,7 +8,8 @@
 /**
 @brief Parameter for a pipeline step
 
-Defines the type and name of a parameter.
+Defines the type and name of a parameter. This is designed sort of as a
+half-assed union.
 */
 class PipelineStepParam : public SerMig
 {
@@ -16,22 +17,37 @@ public:
 	DECLARE_SERMIG;
 	PipelineStepParam();
 	PipelineStepParam(const QString& sName,
-					  QVariant vValue,
-					  QVariant vMin, 
-					  QVariant vMax);
+					QVariant vValue,
+					QVariant vMin,
+					QVariant vMax);
+	PipelineStepParam(const QString& sName,
+						const QStringList& slEnums);
 	QString Name() const;
+
+	QVariant::Type Type() const;
 
 	QVariant Value() const;
 	void SetValue(const QVariant& vVal);
 	QVariant MinValue() const;
 	QVariant MaxValue() const;
 
+	// Enum handling
+	QStringList EnumNames() const;
+	QList<int> EnumValues() const;
+
 private:
 	QString m_sParamName;
 	QVariant m_vParamVal;
 	QVariant m_vMinVal;
 	QVariant m_vMaxVal;
+	
+	struct {
+		QStringList names;
+		QList<int> values;
+	} m_enum;
+
 	void SerializeV1(Archive& ar);
+	void SerializeV2(Archive& ar);
 };
 SERMIG_ARCHIVERS(PipelineStepParam)
 

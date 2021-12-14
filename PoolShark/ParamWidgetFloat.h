@@ -9,9 +9,8 @@ class ParamWidgetFloat : public QWidget
 	Q_OBJECT
 
 public:
-	ParamWidgetFloat(QWidget *parent = Q_NULLPTR);
-
-	void Init(const QString& sName, const PipelineStepParam& psp, QVariant vCookie);
+	ParamWidgetFloat(QWidget* parent = Q_NULLPTR);
+	ParamWidgetFloat(const QString& sName, const PipelineStepParam& psp, const QVariant& vCookie, QWidget* parent = Q_NULLPTR);
 
 signals:
 	void ParamChanged(QVariant vCookie, QVariant vNewValue);

@@ -23,6 +23,38 @@ PipelineStepParam::PipelineStepParam(
 	m_vMaxVal = vMax;
 }
 
+PipelineStepParam::PipelineStepParam(const QString& sName,
+							const QStringList& slEnums)
+{
+	m_sParamName = sName;
+	for (QString sEnum : slEnums)
+	{
+		QStringList slTokens = sEnum.split('=');
+		Q_ASSERT(2 == slTokens.count());
+		m_enum.names += slTokens.first().trimmed();
+		m_enum.values += slTokens.last().trimmed().toInt();
+	}
+	m_vParamVal = m_enum.values.first();
+}
+
+QVariant::Type PipelineStepParam::Type() const
+{
+	if (!m_enum.names.isEmpty())
+		return QVariant::Type::StringList;	// Enum
+
+	return m_vParamVal.type();
+}
+
+QStringList PipelineStepParam::EnumNames() const
+{
+	return m_enum.names;
+}
+
+QList<int> PipelineStepParam::EnumValues() const
+{
+	return m_enum.values;
+}
+
 QString PipelineStepParam::Name() const
 {
 	return m_sParamName;

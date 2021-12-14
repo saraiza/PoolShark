@@ -68,8 +68,8 @@ void PipelineFactory::Init()
 		listParams += PipelineStepParam("Thresh2", 175.0, 0.0, 255.0);
 		listParams += PipelineStepParam("Aperture", 3, 3, 11);
 		Define("Canny", listParams, [](const PipelineData& input, const QList<PipelineStepParam>& listParams) {
-			double dThresh1 = listParams.at(0).Value().toInt();
-			double dThresh2 = listParams.at(1).Value().toInt();
+			double dThresh1 = listParams.at(0).Value().toDouble();
+			double dThresh2 = listParams.at(1).Value().toDouble();
 			int iApertureSize = listParams.at(2).Value().toInt();
 			if (0 == iApertureSize % 2)
 			{
@@ -91,14 +91,15 @@ void PipelineFactory::Init()
 
 	{
 		QList<PipelineStepParam> listParams;
+		listParams += PipelineStepParam("Mode", QStringList() << "RETR_EXTERNAL=1" << "RETR_LIST=1" << "RETR_CCOMP=2" << "RETR_TREE=3" /* << "RETR_FLOODFILL=4" */);
+		listParams += PipelineStepParam("Method", QStringList() << "CHAIN_APPROX_NONE=1" << "CHAIN_APPROX_SIMPLE=2" << "CHAIN_APPROX_TC89_L1=3" << "CHAIN_APPROX_TC89_KCOS=4");
 		Define("findContours", listParams, [](const PipelineData& input, const QList<PipelineStepParam>& listParams) {
 			// The input image must be an 8 bit grayscale image
 			if (input.img.elemSize() != 1)
 				EXERR("RRTK", "findContours requires a grayscale input. Try using Canny() edge detection first.");
 
-			vector<cv::Vec4i> hierarchy;
-			int iMode = cv::RetrievalModes::RETR_EXTERNAL;
-			int iMethod = cv::ContourApproximationModes::CHAIN_APPROX_SIMPLE;
+			int iMode = listParams.at(0).Value().toInt();
+			int iMethod = listParams.at(1).Value().toInt();
 			PipelineData out;
 			cv::findContours(input.img, out.contours, iMode, iMethod);
 
