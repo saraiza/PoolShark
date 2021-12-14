@@ -191,7 +191,7 @@ void MainWindow::PipelineChanged()
 		setWindowTitle(m_sWindowTitle + " - " + m_doc.sFilepath);
 
 	UpdateControls();
-	ProcessPipeline();
+	SetPipelineDirty();
 }
 
 void MainWindow::BuildParamWidgets()
@@ -242,6 +242,17 @@ void MainWindow::BuildParamWidgets()
 }
 
 
+void MainWindow::SetPipelineDirty()
+{
+	if (ui.cbAutoApply->isChecked())
+		ProcessPipeline();
+	else
+	{
+		m_bParamsDirty = true;
+		UpdateControls();
+	}
+}
+
 void MainWindow::OnParamChanged(QVariant vCookie, QVariant vNewValue)
 {
 	LOGINFO("OnParamChanged(%s, %s)",
@@ -255,14 +266,7 @@ void MainWindow::OnParamChanged(QVariant vCookie, QVariant vNewValue)
 
 	// Go set the value
 	m_doc.pipeline[iStep].Params()[iParam].SetValue(vNewValue);
-
-	if(ui.cbAutoApply->isChecked())
-		ProcessPipeline();
-	else
-	{
-		m_bParamsDirty = true;
-		UpdateControls();
-	}
+	SetPipelineDirty();
 }
 
 void MainWindow::ProcessPipeline()

@@ -53,6 +53,7 @@ private:
     QStringList m_slRecentFiles;
 
     void SetPipeline(const Pipeline& pipeline);
+    void SetPipelineDirty();
     void PipelineChanged();
     void BuildParamWidgets();
     QList<QWidget*> m_listSliders;
