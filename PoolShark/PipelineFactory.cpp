@@ -6,6 +6,7 @@
 #include <opencv2/imgcodecs/imgcodecs.hpp>     // cv::imread()
 #include <opencv2/imgproc/imgproc.hpp>     // cv::Canny()
 #include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 //#include <opencv2/gpu/gpu.hpp>
 
 using namespace std;
@@ -98,11 +99,13 @@ void PipelineFactory::Init()
 			vector<cv::Vec4i> hierarchy;
 			int iMode = cv::RetrievalModes::RETR_EXTERNAL;
 			int iMethod = cv::ContourApproximationModes::CHAIN_APPROX_SIMPLE;
-			PipelineData out = input;
-
-			vector<vector<cv::Point>> contours;
+			PipelineData out;
 			cv::findContours(input.img, out.contours, iMode, iMethod);
-			
+
+			// Draw the contours onto a blank image of the same size
+			out.img = cv::UMat::zeros(input.img.rows, input.img.cols, CV_8UC3);
+			cv::Scalar color(0, 0, 255);	// red
+			cv::drawContours(out.img, out.contours, -1, color);			
 			return out;
 			});
 	}
