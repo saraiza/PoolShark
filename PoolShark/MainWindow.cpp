@@ -438,7 +438,7 @@ void MainWindow::on_pbMoveStepDown_clicked()
 	Q_ASSERT(!mil.isEmpty());
 	int iRow = mil.first().row();
 	int iNewRow = iRow + 1;
-	Q_ASSERT(iRow < m_pPipelineModel->rowCount()-2);
+	Q_ASSERT(iRow < m_pPipelineModel->rowCount()-1);
 	PipelineStep ps = m_doc.pipeline.takeAt(iRow);
 	m_doc.pipeline.insert(iNewRow, ps);
 	PipelineChanged();

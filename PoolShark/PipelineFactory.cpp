@@ -46,7 +46,7 @@ void PipelineFactory::Init()
 {
 	{
 		QList<PipelineStepParam> listParams;
-		listParams += PipelineStepParam("Kernel", 5, 1, 100);
+		listParams += PipelineStepParam("Kernel", 5, 1, 500);
 		Define("GaussianBlur", listParams, [](const PipelineData& input, const QList<PipelineStepParam>& listParams) {
 			PipelineData out;
 			int iKernel = listParams.at(0).Value().toInt();
@@ -110,5 +110,31 @@ void PipelineFactory::Init()
 			return out;
 			});
 	}
-}
+		
+	
+	{
+		QList<PipelineStepParam> listParams;
+		listParams += PipelineStepParam("ksize", 1, 1, 11);
+		listParams += PipelineStepParam("scale", 1.0, 0.0, 5.0);
+		listParams += PipelineStepParam("delta", 0.0, 0.0, 255.0);
+		listParams += PipelineStepParam("borderType", QStringList() << "BORDER_CONSTANT=0" << "BORDER_REPLICATE=1" << "BORDER_REFLECT=2" << "BORDER_WRAP=3" << "BORDER_REFLECT_101 (Default) = 4" /*"BORDER_TRANSPARENT = 5"*/ <<  "BORDER_ISOLATED=16");
+		Define("Laplacian", listParams, [](const PipelineData& input, const QList<PipelineStepParam>& listParams) {
+			// The input image must be an 8 bit grayscale image
+			//if (input.img.elemSize() != 1)
+			//	EXERR("RRTK", "Laplacian requires a grayscale input. Try using Canny() edge detection first.");
 
+			int ksize = listParams.at(0).Value().toInt();
+			double scale = listParams.at(1).Value().toDouble();
+			double delta = listParams.at(2).Value().toDouble();
+			int borderType = listParams.at(3).Value().toInt();
+
+			// The kernel must be positive and odd
+			if (ksize % 2 == 0)
+				--ksize;
+
+			PipelineData out;
+			cv::Laplacian(input.img, out.img, CV_16S, ksize, scale, delta, borderType);
+			return out;
+			});
+	}
+}
