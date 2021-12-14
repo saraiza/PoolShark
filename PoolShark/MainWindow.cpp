@@ -160,7 +160,8 @@ void MainWindow::UpdateControls()
 
 void MainWindow::OnUnhandledException(ExceptionContainer exc)
 {
-	QString sMsg = exc.CurrentException().Msg();
+	QString sMsg = exc.Msg();
+	LOGERR("Unhandled Exception\n%s", qPrintable(sMsg));
 	QMessageBox::warning(this, "Unhandled Exception", sMsg);
 }
 
