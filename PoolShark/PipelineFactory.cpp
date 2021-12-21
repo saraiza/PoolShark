@@ -135,18 +135,18 @@ void PipelineFactory::Init()
 			return out;
 			});
 	}
-		
-	
+
+
 	{
 		QList<PipelineStepParam> listParams;
 
 		listParams += PipelineStepParam("rho", 1.0, 1.0, 95.0);
-		listParams += PipelineStepParam("theta", 0.0, 2 * CV_PI, 2 * CV_PI);
-		listParams += PipelineStepParam("threshold", 50, 0, 255);
+		listParams += PipelineStepParam("theta", CV_PI / 180, 0.001, 2 * CV_PI);
+		listParams += PipelineStepParam("threshold", 150, 0, 255);
 		listParams += PipelineStepParam("srn", 0.0, 0.0, 500.0);
 		listParams += PipelineStepParam("stn", 0.0, 0.0, 500.0);
-		listParams += PipelineStepParam("min_theta", 0.0, 0.0, 500.0);
-		listParams += PipelineStepParam("max_theta", CV_PI, 0.01, CV_PI);
+		//listParams += PipelineStepParam("min_theta", 0.0, 0.0, 500.0);
+		//listParams += PipelineStepParam("max_theta", CV_PI, 0.01, CV_PI);
 		Define("HoughLines", listParams, [](const PipelineData& input, const QList<PipelineStepParam>& listParams) {
 			// The input image must be an 8 bit grayscale image
 			if (input.img.elemSize() != 1)
@@ -158,22 +158,148 @@ void PipelineFactory::Init()
 			int 	threshold = listParams.at(i++).Value().toInt();
 			double 	srn = listParams.at(i++).Value().toDouble();
 			double 	stn = listParams.at(i++).Value().toDouble();
-			double 	min_theta = listParams.at(i++).Value().toDouble();
-			double 	max_theta = listParams.at(i++).Value().toDouble();
-			
-			if (min_theta > max_theta)
-				min_theta = max_theta - 0.01;
+			//double 	min_theta = listParams.at(i++).Value().toDouble();
+			//double 	max_theta = listParams.at(i++).Value().toDouble();			
+			//if (min_theta > max_theta)
+			//	min_theta = max_theta - 0.01;
 
 			PipelineData out;
-			vector<cv::Vec4i> vectLinesP;
-			cv::HoughLines(input.img, vectLinesP, rho, theta, threshold, srn, stn, min_theta, max_theta);
-			//cv::HoughLines(input.img, out.contours, rho, theta, threshold, srn, stn, min_theta, max_theta);
+			vector<cv::Vec2f> vectLines;
+			cv::HoughLines(input.img, vectLines, rho, theta, threshold, srn, stn /*, min_theta, max_theta*/);
 
-			// Draw the contours onto a blank image of the same size
+			// Draw the lines onto a blank image of the same size
 			out.img = cv::UMat::zeros(input.img.rows, input.img.cols, CV_8UC3);
 			cv::Scalar color(0, 0, 255);	// red
-			cv::drawContours(out.img, out.contours, -1, color);			
+			int iExtent = qMax(input.img.rows, input.img.cols) * qSqrt(2.0f);
+			for (size_t i = 0; i < vectLines.size(); i++)
+			{
+				float rho = vectLines[i][0];
+				float theta = vectLines[i][1];
+				cv::Point pt1, pt2;
+				double a = cos(theta), b = sin(theta);
+				double x0 = a * rho, y0 = b * rho;
+				pt1.x = cvRound(x0 + iExtent * (-b));
+				pt1.y = cvRound(y0 + iExtent * (a));
+				pt2.x = cvRound(x0 - iExtent * (-b));
+				pt2.y = cvRound(y0 - iExtent * (a));
+				line(out.img, pt1, pt2, color, 3, cv::LINE_AA);
+			}
+
 			return out;
 			});
 	}
+
+
+	{
+		QList<PipelineStepParam> listParams;
+
+		listParams += PipelineStepParam("rho", 1.0, 1.0, 95.0);
+		listParams += PipelineStepParam("theta", CV_PI / 180, 0.001, 2 * CV_PI);
+		listParams += PipelineStepParam("threshold", 80, 0, 255);
+		listParams += PipelineStepParam("srn", 30.0, 0.0, 500.0);
+		listParams += PipelineStepParam("stn", 10.0, 0.0, 500.0);
+		//listParams += PipelineStepParam("min_theta", 0.0, 0.0, 500.0);
+		//listParams += PipelineStepParam("max_theta", CV_PI, 0.01, CV_PI);
+		Define("HoughLinesP", listParams, [](const PipelineData& input, const QList<PipelineStepParam>& listParams) {
+			// The input image must be an 8 bit grayscale image
+			if (input.img.elemSize() != 1)
+				EXERR("RRT3", "HoughLinesP requires a grayscale input. Try using Canny() edge detection first.");
+
+			int i = 0;	// Param index
+			double 	rho = listParams.at(i++).Value().toDouble();
+			double 	theta = listParams.at(i++).Value().toDouble();
+			int 	threshold = listParams.at(i++).Value().toInt();
+			double 	srn = listParams.at(i++).Value().toDouble();
+			double 	stn = listParams.at(i++).Value().toDouble();
+			//double 	min_theta = listParams.at(i++).Value().toDouble();
+			//double 	max_theta = listParams.at(i++).Value().toDouble();			
+			//if (min_theta > max_theta)
+			//	min_theta = max_theta - 0.01;
+
+			PipelineData out;
+			vector<cv::Vec4i> vectLines;
+			cv::HoughLinesP(input.img, vectLines, rho, theta, threshold, srn, stn /*, min_theta, max_theta*/);
+
+			// Draw the lines onto a blank image of the same size
+			out.img = cv::UMat::zeros(input.img.rows, input.img.cols, CV_8UC3);
+			cv::Scalar color(0, 0, 255);	// red
+			for (size_t i = 0; i < vectLines.size(); i++)
+			{
+				float rho = vectLines[i][0];
+				float theta = vectLines[i][1];
+				cv::Point pt1, pt2;
+				double a = cos(theta), b = sin(theta);
+				double x0 = a * rho, y0 = b * rho;
+				pt1.x = cvRound(x0 + 1000 * (-b));
+				pt1.y = cvRound(y0 + 1000 * (a));
+				pt2.x = cvRound(x0 - 1000 * (-b));
+				pt2.y = cvRound(y0 - 1000 * (a));
+				line(out.img, pt1, pt2, color, 3, cv::LINE_AA);
+			}
+
+			return out;
+			});
+	}
+
+
+	 {
+		QList<PipelineStepParam> listParams;
+
+		listParams += PipelineStepParam("seed_x", 0.5, 0.0, 1.0);
+		listParams += PipelineStepParam("seed_y", 0.5, 0.0, 1.0);
+		listParams += PipelineStepParam("tolerance", 30, 0, 255);
+		listParams += PipelineStepParam("connectivity", QStringList() << "4=4" << "8=8");
+		listParams += PipelineStepParam("flags", QStringList() << QString("Fixed Range=%1").arg(cv::FLOODFILL_FIXED_RANGE) << QString("Mask Only=%1").arg(cv::FLOODFILL_MASK_ONLY));
+		listParams += PipelineStepParam("mask", 1, 0, 255);
+		Define("floodFill", listParams, [](const PipelineData& input, const QList<PipelineStepParam>& listParams) {
+
+			int i = 0;	// Param index
+			double 	seed_x = listParams.at(i++).Value().toDouble();
+			double 	seed_y = listParams.at(i++).Value().toDouble();
+			int iTol = listParams.at(i++).Value().toInt();
+			int iConnectivity = listParams.at(i++).Value().toInt();
+			int iFloodFillFlags = listParams.at(i++).Value().toInt();
+			int iMask = listParams.at(i++).Value().toInt();
+
+			PipelineData out = input;
+			out.img = input.img.clone();
+			
+			cv::Rect rcBounds;
+			cv::Scalar diff(iTol, iTol, iTol);
+			int iFlags = iConnectivity | iFloodFillFlags | iMask << 8;
+			int iRet = cv::floodFill(out.img,
+				cv::Point(out.img.cols * seed_x, out.img.rows * seed_y),
+				cv::Scalar(0, 0, 255),
+				&rcBounds,
+				diff, diff,
+				iFlags);
+
+			return out;
+			});
+	}
+
+	/*
+	{
+		QList<PipelineStepParam> listParams;
+		Define("LineSegmentDetector", listParams, [](const PipelineData& input, const QList<PipelineStepParam>& listParams) {
+			// The input image must be an 8 bit grayscale image
+			if (input.img.elemSize() != 1)
+				EXERR("RRT3", "LineSegmentDetector requires a grayscale input. Try using Canny() edge detection first.");
+
+			cv::Ptr<cv::LineSegmentDetector> det = cv::createLineSegmentDetector();
+
+
+
+			cv::Mat lines;
+			det->detect(input.img, lines);
+
+			// Draw the lines onto a blank image of the same size
+			PipelineData out;
+			out.img = cv::UMat::zeros(input.img.rows, input.img.cols, CV_8UC3);
+
+			det->drawSegments(out.img, lines);
+
+			return out;
+			});
+	}*/
 }
