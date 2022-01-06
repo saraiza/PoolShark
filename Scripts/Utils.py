@@ -27,3 +27,25 @@ def ImgShow(images, resolution=120):
         ax[i].imshow(imgDisp)
         
         
+def ColorRange(clr, fuzz):    
+    colorMin = (max(0,clr[0]-fuzz), max(0,clr[1]-fuzz), max(0,clr[2]-fuzz))    
+    colorMax = (min(255,clr[0]+fuzz), min(255,clr[1]+fuzz), min(255,clr[2]+fuzz))
+    return colorMin, colorMax
+        
+#Handy color switcher
+clrs = []
+clrs.append((255,0,0))
+clrs.append((0,255,0))
+clrs.append((0,0,255))
+clrs.append((255,255,0))
+clrs.append((255,0,255))
+clrs.append((0,255,255))
+iClr = 0
+
+def Color():
+    global iClr
+    iClr += 1
+    return clrs[iClr % len(clrs)]
+    
+clr = Color()
+        
