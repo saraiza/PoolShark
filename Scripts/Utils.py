@@ -26,6 +26,10 @@ def ImgShow(images, resolution=120):
         ax[i].axis('off')
         ax[i].imshow(imgDisp)
         
+def Distance(pt1, pt2):
+    dx = float(pt2[0])-float(pt1[0])
+    dy = float(pt2[1])-float(pt1[1])
+    return math.sqrt(dx*dx + dy*dy)
         
 def ColorRange(clr, fuzz):    
     colorMin = (max(0,clr[0]-fuzz), max(0,clr[1]-fuzz), max(0,clr[2]-fuzz))    
