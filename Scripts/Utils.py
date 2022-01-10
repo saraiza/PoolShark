@@ -2,6 +2,21 @@ import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+import os
+
+def FindImageFilesAndDir(subdir="", suffixFilter="jpg"):
+    dir = "../test/images"
+    if len(subdir) > 0:
+        dir = "{0}/{1}".format(dir, subdir)
+    files = os.listdir(dir)
+    suffix = "." + suffixFilter
+    list = []
+    for file in files:
+        if file.endswith(suffix):
+            filename = str("{0}/{1}".format(dir, file))
+            #filename = os.path.abspath(filename)
+            list.append(filename)
+    return list, dir
 
 def ImgShow(images, resolution=120):
     plt.rcParams['figure.dpi'] = resolution
