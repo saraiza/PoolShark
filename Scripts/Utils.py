@@ -67,4 +67,65 @@ def Color():
     return clrs[iClr % len(clrs)]
     
 clr = Color()
+
+
+
+def GenerateCalibration(dirCheckerboard, rotate=True):
+    global calRotate
+    calRotate = rotate
+    files, dir = FindImageFilesAndDir(subdir=dirCheckerboard)
+    print("Generating Calibration")
+    print(" rotate={0}".format(rotate))
+    print(" dir={0}".format(dirCheckerboard))
+    print(" Checkerboard file count={0}".format(len(files)))
+    patternSize = (9,6)
+    patW = patternSize[1]
+    patH = patternSize[0]
+
+    # Create checkerboard points in 3D space
+    objp = np.zeros((patW*patH,3), np.float32)
+    objp[:,:2] = np.mgrid[0:patH,0:patW].T.reshape(-1,2)
+
+    # Sub-Pixel setup
+    winSize = (5, 5)
+    zeroZone = (-1, -1)
+    criteria = (cv.TERM_CRITERIA_EPS + cv.TermCriteria_COUNT, 30, 0.001)
+
+    # Go find the pattern in each image
+    objpoints = [] # 3d point in real world space
+    imgpoints = [] # 2d points in image plane.
+    for file in files:
+        image = cv.imread(file)
+        #print("cal file: {0} shape={1}".format(file, image.shape))
+        if(calRotate):
+            image = cv.rotate(image,cv.ROTATE_90_CLOCKWISE)
+        imageGray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+        bFound, cornerPoints = cv.findChessboardCorners(imageGray, patternSize)
+        if not bFound:
+            continue
+        objpoints.append(objp) # All the same
+        cornerPointsSubPix = cv.cornerSubPix(imageGray, cornerPoints, winSize, zeroZone, criteria)
+        imgpoints.append(cornerPoints)
+        cv.drawChessboardCorners(image, patternSize, cornerPointsSubPix, bFound)
         
+    global calMatrix  
+    global calDist
+    ret, calMatrix, calDist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, imageGray.shape[::-1], None, None)
+        
+    h, w = image.shape[:2]        
+    global calMatrixOptimal
+    global calROI
+    calMatrixOptimal, calROI = cv.getOptimalNewCameraMatrix(calMatrix, calDist, (w,h), 1, (w,h))  
+
+def CalibrateImage(img):    
+    # undistort and crop the image
+    global calMatrix  
+    global calDist
+    global calMatrixOptimal
+    #global calRotate
+    if(calRotate):
+        img = cv.rotate(img,cv.ROTATE_90_CLOCKWISE)
+    imgUndistort = cv.undistort(img, calMatrix, calDist, None, calMatrixOptimal)
+    x, y, w, h = calROI
+    #imgUndistort = imgUndistort[y:y+h, x:x+w]
+    return imgUndistort
