@@ -2,6 +2,7 @@ import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+import importlib.util
 import os
 
 def FindImageFilesAndDir(subdir="", suffixFilter="jpg"):
@@ -70,7 +71,21 @@ clr = Color()
 
 
 
-def GenerateCalibration(dirCheckerboard, rotate=True):
+
+def LoadMarkers(subDir):
+    files, dir = FindImageFilesAndDir(subdir=subDir, suffixFilter="py")
+    filenameMarkersPy = "{0}/markers.py".format(dir)
+    print("Loading Markers from: {0}".format(filenameMarkersPy))
+    #importlib.import_module(filenameMarkersPy) 
+    spec = importlib.util.spec_from_file_location("markers", filenameMarkersPy)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    markers = module.markers
+    return markers
+    
+
+
+def GenerateCalibration(dirCheckerboard, rotate=False):
     global calRotate
     calRotate = rotate
     files, dir = FindImageFilesAndDir(subdir=dirCheckerboard)
@@ -117,6 +132,21 @@ def GenerateCalibration(dirCheckerboard, rotate=True):
     global calROI
     calMatrixOptimal, calROI = cv.getOptimalNewCameraMatrix(calMatrix, calDist, (w,h), 1, (w,h))  
 
+
+def GenerateCalibrationWithMarkers(dirCheckerboard, rotate=True):
+    print("GenerateCalibrationWithMarkers")
+    GenerateCalibration(dirCheckerboard=dirCheckerboard,rotate=rotate)
+    
+    markers = LoadMarkers(dirCheckerboard)
+    print("markers=", markers)
+    
+    # Swap axis?
+    if rotate:
+        for i in range(0, len(markers)):
+            x,y = markers[i]
+            markers[i] = (y,x)
+    return markers
+    
 def CalibrateImage(img):    
     # undistort and crop the image
     global calMatrix  
