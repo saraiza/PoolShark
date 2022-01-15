@@ -83,7 +83,38 @@ def LoadMarkers(subDir):
     markers = module.markers
     return markers
     
+def FindAllChessboardCorners(img):
+    patH = 9
+    patW = 6
+    patternSize = (patH, patW)
+    
+    imageMasked = img.copy()
+    #imageMasked = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
+    # Create checkerboard points in 3D space
+    objp = np.zeros((patW*patH,3), np.float32)
+    objp[:,:2] = np.mgrid[0:patH,0:patW].T.reshape(-1,2)
+    
+    cornerSets = []
+    while True:
+        # Find one chessboard array
+        bFound, cornerPoints = cv.findChessboardCorners(imageMasked, patternSize,flags=cv.CALIB_CB_FAST_CHECK)
+        if not bFound:
+            break
+        
+        # Extract the points on the four corners of it
+        pts = []
+        indexes = [0, patH-1, len(cornerPoints)-1, len(cornerPoints)-patH]
+        for idx in indexes:
+            p = cornerPoints[idx][0]
+            pts.append([int(round(p[0])), int(round(p[1]))])
+        pts = np.array(pts)
+        
+        # Destroy that checkerboard by drawing a polygon on top of it
+        cv.fillPoly(imageMasked, [pts], (255,0,0))
+        
+        cornerSets.append(cornerPoints)
+    return cornerSets
 
 def GenerateCalibration(dirCheckerboard, rotate=False):
     global calRotate
@@ -115,14 +146,14 @@ def GenerateCalibration(dirCheckerboard, rotate=False):
         if(calRotate):
             image = cv.rotate(image,cv.ROTATE_90_CLOCKWISE)
         imageGray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-        bFound, cornerPoints = cv.findChessboardCorners(imageGray, patternSize)
-        if not bFound:
+        cornerSets = FindAllChessboardCorners(image)
+        if 0==len(cornerSets):
             continue
-        objpoints.append(objp) # All the same
-        cornerPointsSubPix = cv.cornerSubPix(imageGray, cornerPoints, winSize, zeroZone, criteria)
-        imgpoints.append(cornerPoints)
-        cv.drawChessboardCorners(image, patternSize, cornerPointsSubPix, bFound)
         
+        for cornerPoints in cornerSets:
+            imgpoints.append(cornerPoints)
+            objpoints.append(objp) # All the same
+
     global calMatrix  
     global calDist
     ret, calMatrix, calDist, rvecs, tvecs = cv.calibrateCamera(objpoints, imgpoints, imageGray.shape[::-1], None, None)
@@ -131,6 +162,20 @@ def GenerateCalibration(dirCheckerboard, rotate=False):
     global calMatrixOptimal
     global calROI
     calMatrixOptimal, calROI = cv.getOptimalNewCameraMatrix(calMatrix, calDist, (w,h), 1, (w,h))  
+    
+    
+def CalibrateImage(img):    
+    # undistort and crop the image
+    global calMatrix  
+    global calDist
+    global calMatrixOptimal
+    #global calRotate
+    if(calRotate):
+        img = cv.rotate(img,cv.ROTATE_90_CLOCKWISE)
+    imgUndistort = cv.undistort(img, calMatrix, calDist, None, calMatrixOptimal)
+    #x, y, w, h = calROI
+    #imgUndistort = imgUndistort[y:y+h, x:x+w]
+    return imgUndistort
 
 
 def GenerateCalibrationWithMarkers(dirCheckerboard, rotate=True):
@@ -146,16 +191,3 @@ def GenerateCalibrationWithMarkers(dirCheckerboard, rotate=True):
             x,y = markers[i]
             markers[i] = (y,x)
     return markers
-    
-def CalibrateImage(img):    
-    # undistort and crop the image
-    global calMatrix  
-    global calDist
-    global calMatrixOptimal
-    #global calRotate
-    if(calRotate):
-        img = cv.rotate(img,cv.ROTATE_90_CLOCKWISE)
-    imgUndistort = cv.undistort(img, calMatrix, calDist, None, calMatrixOptimal)
-    x, y, w, h = calROI
-    #imgUndistort = imgUndistort[y:y+h, x:x+w]
-    return imgUndistort
