@@ -143,7 +143,7 @@ def GenerateCalibration(dirCheckerboard, rotate=False):
     for file in files:
         image = cv.imread(file)
         #print("cal file: {0} shape={1}".format(file, image.shape))
-        if(calRotate):
+        if calRotate:
             image = cv.rotate(image,cv.ROTATE_90_CLOCKWISE)
         imageGray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
         cornerSets = FindAllChessboardCorners(image)
@@ -153,6 +153,8 @@ def GenerateCalibration(dirCheckerboard, rotate=False):
         for cornerPoints in cornerSets:
             imgpoints.append(cornerPoints)
             objpoints.append(objp) # All the same
+        
+    print(f' Checkerboard count={len(imgpoints)}')
 
     global calMatrix  
     global calDist
@@ -162,20 +164,30 @@ def GenerateCalibration(dirCheckerboard, rotate=False):
     global calMatrixOptimal
     global calROI
     calMatrixOptimal, calROI = cv.getOptimalNewCameraMatrix(calMatrix, calDist, (w,h), 1, (w,h))  
+
+def GetCalibrationROI():
+    return calROI
+
+def SetCalibrationROI(roiNew):
+    global calROI
+    print(f'Adjusting ROI: {calROI} -> {roiNew}')
+    calROI = roiNew
     
+def CalibrationExists():
+    return 'calMatrix' in globals()
     
 def CalibrateImage(img):    
     # undistort and crop the image
     global calMatrix  
     global calDist
     global calMatrixOptimal
-    #global calRotate
-    if(calRotate):
+    global calRotate
+    if calRotate:
         img = cv.rotate(img,cv.ROTATE_90_CLOCKWISE)
-    imgUndistort = cv.undistort(img, calMatrix, calDist, None, calMatrixOptimal)
-    #x, y, w, h = calROI
-    #imgUndistort = imgUndistort[y:y+h, x:x+w]
-    return imgUndistort
+    img = cv.undistort(img, calMatrix, calDist, None, calMatrixOptimal)
+    x, y, w, h = calROI
+    imgClipped = img[y:y+h, x:x+w]
+    return imgClipped, img
 
 
 def GenerateCalibrationWithMarkers(dirCheckerboard, rotate=True):
