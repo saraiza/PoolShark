@@ -203,3 +203,75 @@ def GenerateCalibrationWithMarkers(dirCheckerboard, rotate=True):
             x,y = markers[i]
             markers[i] = (y,x)
     return markers
+
+
+
+
+def TX_Generate(ptsSrc):
+    print('TX_Generate')
+    if type(ptsSrc) != 'numpy.ndarray':
+        ptsSrc = np.array(ptsSrc, np.float32)    
+
+    # The transformed space should be in dimensions that have the 
+    # correct aspect ratio for a pool table (2:1). For now, we will
+    # assume an 8' pool table. The play area is 44" x 88", but add
+    # some resolution. Let's go with 100ths of an inch.
+    global txTargetDims    
+    txTargetDims = np.array([44, 88], np.int32)
+    txTargetDims = txTargetDims * 100     # 100ths of an inch
+    print(f' Target Dims = {txTargetDims}')
+        
+    ptsDst = np.array([
+                    [0,0],
+                    [txTargetDims[0]-1, 0],
+                    [txTargetDims[0]-1, txTargetDims[1]-1],
+                    [0, txTargetDims[1]-1]
+                    ] , np.float32)
+    
+    # Calculate the transform matrix
+    global matTxToFlat
+    global matTxFromFlat
+    matTxToFlat = cv.getPerspectiveTransform(ptsSrc, ptsDst)
+    matTxFromFlat = cv.getPerspectiveTransform(ptsDst, ptsSrc)
+
+def TX_GetMats():    
+    global matTxToFlat
+    global matTxFromFlat
+    return matTxToFlat, matTxFromFlat
+
+def TX_TxPoint(matTx, pt):
+    c3 = matTx[2,0]*pt[0] + matTx[2,1]*pt[1] + matTx[2,2]
+    m = [(matTx[0,0]*pt[0] + matTx[0,1]*pt[1] + matTx[0,2])/c3,
+         (matTx[1,0]*pt[0] + matTx[1,1]*pt[1] + matTx[1,2])/c3]
+    return m
+
+def TX_TxPoints(matTx, pts):
+    out = []
+    for pt in pts:
+        a = TX_TxPoint(matTx, pt)
+        out.append(a)
+    return out
+
+def TX_ToFlatPoint(pt):
+    global matTxToFlat
+    return TX_TxPoint(matTxToFlat, pt)
+
+def TX_ToFlatPoints(pts):
+    global matTxToFlat
+    return TX_TxPoints(matTxToFlat, pts)
+
+
+def TX_FromFlatPoint(pt):
+    global matTxFromFlat
+    return TX_TxPoint(matTxFromFlat, pt)
+
+def TX_FromFlatPoints(pts):
+    global matTxFromFlat
+    return TX_TxPoints(matTxFromFlat, pts)
+    
+def TX_ToFlatImage(image):
+    # Apply the warp transform
+    global txTargetDims
+    global matTxToFlat
+    imageWarp = cv.warpPerspective(image, matTxToFlat, txTargetDims)
+    return imageWarp
