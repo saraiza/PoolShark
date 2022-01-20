@@ -239,6 +239,10 @@ def TX_GetMats():
     global matTxFromFlat
     return matTxToFlat, matTxFromFlat
 
+def TX_GetTargetDims():
+    global txTargetDims    
+    return txTargetDims
+
 def TX_TxPoint(matTx, pt):
     c3 = matTx[2,0]*pt[0] + matTx[2,1]*pt[1] + matTx[2,2]
     m = [(matTx[0,0]*pt[0] + matTx[0,1]*pt[1] + matTx[0,2])/c3,
@@ -275,3 +279,16 @@ def TX_ToFlatImage(image):
     global matTxToFlat
     imageWarp = cv.warpPerspective(image, matTxToFlat, txTargetDims)
     return imageWarp
+
+def ToNpArray(arr, dtype=np.int32):
+    if type(arr) != 'numpy.ndarray':
+        arrNp = np.array(arr, dtype=dtype)
+    else:
+        arrNp = arr.astype(dtype)
+    return arrNp
+
+def Distance(pts):
+    dx = pts[1][0] - pts[0][0]
+    dy = pts[1][1] - pts[0][1]
+    sumOfSquares = dx*dx + dy*dy
+    return math.sqrt(sumOfSquares)
