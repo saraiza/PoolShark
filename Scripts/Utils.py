@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import math
 import importlib.util
 import os
+import pickle
 
 def FindImageFilesAndDir(subdir="", suffixFilter="jpg"):
     dir = "../test/images"
@@ -19,7 +20,7 @@ def FindImageFilesAndDir(subdir="", suffixFilter="jpg"):
             list.append(filename)
     return list, dir
 
-def ImgShow(images, resolution=120):
+def ImgShowInternal(images, resolution=120):
     plt.rcParams['figure.dpi'] = resolution
     
     cnt = len(images)
@@ -41,6 +42,18 @@ def ImgShow(images, resolution=120):
             
         ax[i].axis('off')
         ax[i].imshow(imgDisp)
+        
+def ImgShow(images, resolution=120, cols=0):
+    if 0 == cols:
+        ImgShowInternal(images, resolution)
+        return
+    
+    while len(images) > 0:
+        grpCnt = min(len(images), cols)
+        subset = images[0:grpCnt]
+        ImgShowInternal(subset, resolution)
+        images = images[grpCnt:len(images)]
+
         
 def Distance(pt1, pt2):
     dx = float(pt2[0])-float(pt1[0])
@@ -165,6 +178,48 @@ def GenerateCalibration(dirCheckerboard, rotate=False):
     global calROI
     calMatrixOptimal, calROI = cv.getOptimalNewCameraMatrix(calMatrix, calDist, (w,h), 1, (w,h))  
 
+
+
+def PickleCalibration(dirCal, bWrite):    
+    global calRotate
+    global calMatrix  
+    global calDist
+    global calMatrixOptimal
+    global calROI
+    filename = "../test/images/" + dirCal + "/cal.pickle"    
+    
+    if not bWrite:
+        # Reading, does the file exist?
+        if not os.path.exists(filename):
+            return False        
+        
+    code = 'wb' if bWrite else 'rb'
+    with open(filename, code) as f:
+        if bWrite:
+            pickle.dump(calRotate,          f, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(calMatrix,          f, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(calDist,            f, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(calMatrixOptimal,   f, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(calROI,             f, pickle.HIGHEST_PROTOCOL)
+        else:
+            calRotate = pickle.load(f)
+            calMatrix  = pickle.load(f) 
+            calDist = pickle.load(f)
+            calMatrixOptimal = pickle.load(f)
+            calROI = pickle.load(f)
+            
+    return True
+
+def LoadCalibration(dirCal):
+    if PickleCalibration(dirCal, False):
+        return  # The cal data was found and loaded
+    
+    # No cal data on disk, generate it
+    GenerateCalibration(dirCal, False)
+    
+    # And save it in the directory
+    PickleCalibration(dirCal, True)
+    
 def GetCalibrationROI():
     return calROI
 
@@ -292,3 +347,7 @@ def Distance(pts):
     dy = pts[1][1] - pts[0][1]
     sumOfSquares = dx*dx + dy*dy
     return math.sqrt(sumOfSquares)
+
+def TrimBorder(arr, siz=1):
+    trimmed = arr[siz:arr.shape[0]-siz, siz:arr.shape[1]-siz]
+    return trimmed
