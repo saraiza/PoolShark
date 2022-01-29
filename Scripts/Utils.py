@@ -23,11 +23,11 @@ def FindImageFilesAndDir(subdir="", suffixFilter="jpg"):
 def ImgShowInternal(images, resolution=120):
     plt.rcParams['figure.dpi'] = resolution
     
-    cnt = len(images)
-    if cnt > 20:
-        # Top-level object is an image, make it an array of 1
+    # If a single image is provided, turn it into an array of 1
+    if "<class 'numpy.ndarray'>" == type(images):
         images = [images]
-        cnt = len(images)
+    
+    cnt = len(images)
         
     cols = cnt
     fig, ax = plt.subplots(1, cnt)    
