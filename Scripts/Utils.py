@@ -20,6 +20,17 @@ def FindImageFilesAndDir(subdir="", suffixFilter="jpg"):
             list.append(filename)
     return list, dir
 
+
+
+def FindImageFileAndDir(subdir, filename):
+    dir = "../test/images"
+    if len(subdir) > 0:
+        dir = "{0}/{1}".format(dir, subdir)
+    filenameFull = dir + "/" + filename
+    return filenameFull, dir
+
+
+
 def ImgShowInternal(images, resolution=120):
     plt.rcParams['figure.dpi'] = resolution
     
@@ -264,8 +275,8 @@ def GenerateCalibrationWithMarkers(dirCheckerboard, rotate=True):
 
 def TX_Generate(ptsSrc):
     print('TX_Generate')
-    if type(ptsSrc) != 'numpy.ndarray':
-        ptsSrc = np.array(ptsSrc, np.float32)    
+    global txSrcPtsInt
+    txSrcPtsInt = ptsSrc  # Save for generating mask 
 
     # The transformed space should be in dimensions that have the 
     # correct aspect ratio for a pool table (2:1). For now, we will
@@ -274,7 +285,6 @@ def TX_Generate(ptsSrc):
     global txTargetDims    
     txTargetDims = np.array([44, 88], np.int32)
     txTargetDims = txTargetDims * 100     # 100ths of an inch
-    print(f' Target Dims = {txTargetDims}')
         
     ptsDst = np.array([
                     [0,0],
@@ -286,9 +296,53 @@ def TX_Generate(ptsSrc):
     # Calculate the transform matrix
     global matTxToFlat
     global matTxFromFlat
-    matTxToFlat = cv.getPerspectiveTransform(ptsSrc, ptsDst)
-    matTxFromFlat = cv.getPerspectiveTransform(ptsDst, ptsSrc)
+    
+    ptsSrcF = np.array(ptsSrc, np.float32)    
+    matTxToFlat = cv.getPerspectiveTransform(ptsSrcF, ptsDst)
+    matTxFromFlat = cv.getPerspectiveTransform(ptsDst, ptsSrcF)
+    print(f'txTargetDims={txTargetDims}')
+    print(f'matTxToFlat={matTxToFlat}')
+    print(f'matTxFromFlat={matTxFromFlat}')
+    print(f'txSrcPts={txSrcPtsInt}')    
+    
 
+def TX_Pickle(dir, bWrite):    
+    global matTxToFlat
+    global matTxFromFlat  
+    global txTargetDims
+    global txSrcPtsInt
+    filename = "../test/images/" + dir + "/tx.pickle"    
+    
+    if not bWrite:
+        # Reading, does the file exist?
+        if not os.path.exists(filename):
+            print(f'ERROR: Can\'t find the TX file: {filename}')
+            return False        
+        
+    code = 'wb' if bWrite else 'rb'
+    with open(filename, code) as f:
+        if bWrite:
+            pickle.dump(matTxToFlat,          f, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(matTxFromFlat,        f, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(txTargetDims,         f, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(txSrcPtsInt,             f, pickle.HIGHEST_PROTOCOL)
+        else:
+            print("Loading TX")
+            matTxToFlat    = pickle.load(f)
+            matTxFromFlat  = pickle.load(f) 
+            txTargetDims   = pickle.load(f)
+            txSrcPtsInt    = pickle.load(f)
+            print(f'txTargetDims={txTargetDims}')
+            print(f'matTxToFlat={matTxToFlat}')
+            print(f'matTxFromFlat={matTxFromFlat}')
+            print(f'txSrcPtsInt={txSrcPtsInt}')
+            
+    return True
+
+
+def TX_Load(dir):
+    TX_Pickle(dir, False)
+    
 def TX_GetMats():    
     global matTxToFlat
     global matTxFromFlat
@@ -334,6 +388,17 @@ def TX_ToFlatImage(image):
     global matTxToFlat
     imageWarp = cv.warpPerspective(image, matTxToFlat, txTargetDims)
     return imageWarp
+
+def TX_MaskPlayableArea(image):
+    global txSrcPtsInt
+    ptTL, ptTR, ptBR, ptBL = txSrcPtsInt
+    polyPlayable = np.array([ptTL, ptTR, ptBR, ptBL])
+    clr = (255,255,255)
+    imageBlack = np.zeros(image.shape[:2], np.uint8)    
+    imageFeltMask = cv.fillPoly(imageBlack, [polyPlayable], color=clr)
+    imageFelt = cv.bitwise_and(image, image, mask=imageFeltMask)    
+    return imageFelt
+    
 
 def ToNpArray(arr, dtype=np.int32):
     if type(arr) != 'numpy.ndarray':
